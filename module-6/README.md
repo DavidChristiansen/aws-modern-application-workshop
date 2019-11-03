@@ -5,7 +5,7 @@
 **Time to complete:** 45 minutes
 
 ---
-**Short of time?:** If you are short of time, refer to the completed reference AWS CDK code in `~/Workshop/source/module-6/cdk`
+**Short of time?:** If you are short of time, refer to the completed reference AWS CDK code in `~/environment/workshop/source/module-6/cdk`
 
 ---
 
@@ -37,7 +37,7 @@ The resources we'll create includes:
 Let's start off by switching once again to our Workshop's CDK folder, and opening it in our editor:
 
 ```sh
-cd ~/Workshop/cdk
+cd ~/environment/workshop/cdk
 ```
 
 ```sh
@@ -47,7 +47,7 @@ code .
 To create the necessary resources using the AWS CDK, create a new file in the `workshop/cdk/lib` folder called `xray-stack.ts`.
 
 ```sh
-cd ~/workshop/cdk
+cd ~/environment/workshop/cdk
 touch lib/xray-stack.ts
 ```
 
@@ -140,13 +140,13 @@ app.synth();
 Now, let's move our working directory into the workshop lambda folder:
 
 ```sh
-cd ~/Workshop/lambda/
+cd ~/environment/workshop/lambda/
 ```
 
 Then, copy the module-6 lambda components into the repository directory:
 
 ```sh
-cp -r ~/Workshop/source/module-6/lambda/* .
+cp -r ~/environment/workshop/source/module-6/lambda/* .
 ```
 
 For these new microservices, we have included all of the packages necessary for the AWS Lambda functions to be deployed and invoked.
@@ -154,7 +154,7 @@ For these new microservices, we have included all of the packages necessary for 
 Restore the resources required by the lambda function and build the function so that it is ready for deployment.
 
 ```sh
-cd ~/Workshop/lambda/PostQuestionsService
+cd ~/environment/workshop/lambda/PostQuestionsService
 ```
 
 ```sh
@@ -166,7 +166,7 @@ dotnet publish
 ```
 
 ```sh
-cd ~/Workshop/lambda/ProcessQuestionsStream
+cd ~/environment/workshop/lambda/ProcessQuestionsStream
 ```
 
 ```sh
@@ -182,7 +182,7 @@ dotnet publish
 Change back into the `cdk` folder:
 
 ```sh
-cd ~/Workshop/cdk
+cd ~/environment/workshop/cdk
 ```
 
 Back in the `XRayStack` file,  we will now define the Questions microservice infrastructure:
@@ -352,10 +352,10 @@ Next, visit the email address provided and CONFIRM your subscription to the SNS 
 
 With the questions stack up and running, we now need to publish a new version of our Mythical Mysfits frontend.
 
-The new index.html file is included at: `~/workshop/source/module-6/frontend/index.html`. Copy the new version of the website to the `workshop/frontend` directory:
+The new index.html file is included at: `~/environment/workshop/source/module-6/frontend/index.html`. Copy the new version of the website to the `workshop/frontend` directory:
 
 ```sh
-cp -r ~/workshop/source/module-6/frontend/* ~/workshop/frontend
+cp -r ~/environment/workshop/source/module-6/frontend/* ~/environment/workshop/frontend
 ```
 
 This file contains the same placeholders as module-5 that need to be updated, as well as an additional placeholder for the new questions service endpoint you just created. The `questionsApiEndpoint` value is the API Gateway endpoint you noted down earlier.

@@ -6,19 +6,73 @@
 
 **Services used:**
 
+* [AWS Cloud9](https://aws.amazon.com/cloud9/)
 * [Amazon Simple Storage Service (S3)](https://aws.amazon.com/s3/)
 * [Amazon CloudFront](https://aws.amazon.com/cloudfront/)
 
-In this module, follow the instructions to set up your environment with Visual Studio Code to deploy the first version of the static Mythical Mysfits website.  Amazon S3 is a highly durable, highly available, and inexpensive object storage service that can serve stored objects directly via HTTP.  Amazon CloudFront is a highly-secure CDN that provides both network and application level protection. Your traffic and applications benefit through a variety of built-in protections such as AWS Shield Standard, at no additional cost. You can also use configurable features such as AWS Certificate Manager (ACM) to create and manage custom SSL certificates at no extra cost.
+In this module, follow the instructions to create your cloud-based IDE on [AWS Cloud9](https://aws.amazon.com/cloud9/) and deploy the initial version of our Mythical Mysfits website.  [Amazon S3](https://aws.amazon.com/s3/) is a highly durable, highly available, and inexpensive object storage service that can serve stored objects directly via HTTP.  Amazon CloudFront is a highly-secure CDN that provides both network and application level protection. Your traffic and applications benefit through a variety of built-in protections such as AWS Shield Standard, at no additional cost. You can also use configurable features such as AWS Certificate Manager (ACM) to create and manage custom SSL certificates at no extra cost.
 
 The combination of S3 and CloudFront makes for a wonderfully useful capability for serving static web content (html, js, css, media content, etc.) directly to web browsers for sites on the Internet.  We will utilize S3 to host the content and the fast content delivery network (CDN) service, CloudFront, to securely deliver our Mythical Mysfits website to customers globally with low latency, high transfer speeds.
 
 ## Getting Started: Configuring your environment for Mythical Mysfits
 
+### Sign In to the AWS Console
+
+To begin, sign in to the [AWS Console](https://console.aws.amazon.com) for the AWS account you will be using in this workshop.
+
+This web application can be deployed in any AWS region that supports all the services used in this application. The supported regions include:
+
+* us-east-1 (N. Virginia)
+* us-east-2 (Ohio)
+* us-west-2 (Oregon)
+* ap-southeast-1 (Singapore)
+* ap-northeast-1 (Tokyo)
+* eu-central-1 (Frankfurt)
+* eu-west-1 (Ireland)
+
+Select a region from the dropdown in the upper right corner of the AWS Management Console.
+
+### Creating your Mythical Mysifts IDE
+
+#### Create a new AWS Cloud9 Environment
+
+On the AWS Console home page, type **Cloud9** into the service search bar and select it:
+![aws-console-home](/images/module-1/cloud9-service.png)
+
+Click **Create Environment** on the Cloud9 home page:
+![cloud9-home](/images/module-1/cloud9-home.png)
+
+Name your environment **MythicalMysfitsIDE** with any description you'd like, and click **Next Step**:
+![cloud9-name](/images/module-1/cloud9-name-ide.png)
+
+Leave the Environment settings as their defaults and click **Next Step**:
+![cloud9-configure](/images/module-1/cloud9-configure-env.png)
+
+Click **Create Environment**:
+![cloud9-review](/images/module-1/cloud9-review.png)
+
+When the IDE has finished being created for you, you'll be presented with a welcome screen that looks like this:
+![cloud9-welcome](/images/module-1/cloud9-welcome.png)
+
+#### Cloning the Mythical Mysfits Workshop Repository
+
+In the bottom panel of your new Cloud9 IDE, you will see a terminal command line terminal open and ready to use. First, let's create a directory within which we will store of the files created and used with this workshop:
+
+```sh
+mkdir workshop && cd workshop
+```
+
+Run the following git command in the terminal to clone the necessary code to complete this tutorial:
+
+```sh
+git clone -b dotnet-cdk-csharp https://github.com/aws-samples/aws-modern-application-workshop.git source
+```
+
+After cloning the repository, you'll see that your project explorer now includes the files cloned:
+![cloud9-explorer](/images/module-1/cloud9-explorer.png)
+
 ### Install required tools
 
-* [Visual Studio Code](https://code.visualstudio.com/)
-* [git](https://git-scm.com/downloads)
 * [AWS CLI](https://aws.amazon.com/cli/)
 * [Node.js and NPM](https://nodejs.org/en/) - v12 or greater
 * [.NET Core 2.1](https://www.microsoft.com/net/download)
@@ -27,41 +81,11 @@ The combination of S3 and CloudFront makes for a wonderfully useful capability f
 * [Angular CLI](https://cli.angular.io/)
   * npm install -g @angular/cli
 
-### Clone the Mythical Mysfits Workshop Repository
-
-Open the terminal in Visual Studio Code, located under **View > Terminal**
-
-First, we will create a directory within which we will store of the files created and used with this workshop.
-
-**Action:** Create to a suitable directory to store your work for this workshop (such as ~/Workshop)
-
-```sh
-mkdir ~/Workshop
-```
-
-We will refer to this directory as your `Root Folder`.  After creating the `Root Folder`, click **Open Folder** in Visual Studio Code.
-
-**Action:** In the terminal, change directory to your workshop root directory:
-
-```sh
-cd ~/Workshop
-```
-
-Now we will clone the workshop repository which contains the workshops source code, and reference implementations.  
-
-**Action:** To continue, execute the following commands.
-
-```sh
-git clone -b dotnet-cdk https://github.com/aws-samples/aws-modern-application-workshop.git source
-```
-
-You have now cloned the workshop directory which will provide you with source code that supports this workshop.
-
 Now, let's prepare the Single Page Web Application we want to host.
 
 ## Single Page Web Application (SPA)
 
-In the module-1 folder, the `frontend` folder includes a fully built [Angular](https://angular.io/) application. This application was generated using `ng new`, and we added the basic features for the Mythical Mysfits web app. Included is the [Bootstrap framework](https://getbootstrap.com/) and a popular Angular library [ng-bootstrap](https://ng-bootstrap.github.io/#/home). Both give pre-built UX features and layout options.
+In the module-1 folder, the `frontend` folder includes a full-featured [Angular](https://angular.io/) application. This application was generated using `ng new`, and we added the basic features for the Mythical Mysfits web app. Included is the [Bootstrap framework](https://getbootstrap.com/) and a popular Angular library [ng-bootstrap](https://ng-bootstrap.github.io/#/home). Both give pre-built UX features and layout options.
 
 ### Overview of the `frontend`
 
@@ -72,11 +96,11 @@ This version of the frontend has all of the Mysfits data hardcoded into the `Myt
 **Action:** Copy the web application source code from the module 1 directory
 
 ```sh
-mkdir ~/Workshop/frontend
+mkdir ~/environment/workshop/frontend
 ```
 
 ```sh
-cd ~/Workshop/frontend
+cd ~/environment/workshop/frontend
 ```
 
 ```sh
@@ -84,7 +108,7 @@ git init
 ```
 
 ```sh
-cp -r ~/Workshop/source/module-1/frontend/* ~/Workshop/frontend/
+cp -r ~/environment/workshop/source/module-1/frontend/* ~/environment/workshop/frontend/
 ```
 
 ```sh
@@ -97,18 +121,18 @@ git commit -m 'Initial commit of frontend code'
 
 ### Configure the Web Application
 
-Before you can build and publish your Angular app, you will need to create a production Angular environment file located in your `~/Workshop/frontend/src/environments/` folder. Make sure the file is named `environment.prod.ts`.
+Before you can build and publish your Angular app, you will need to create a production Angular environment file located in your `~/environment/workshop/frontend/src/environments/` folder. Make sure the file is named `environment.prod.ts`.
 
-**Action:** Create a file `~/Workshop/frontend/src/environments/environment.prod.ts`
+**Action:** Create a file `~/environment/workshop/frontend/src/environments/environment.prod.ts`
 
 ```sh
-touch ~/Workshop/frontend/src/environments/environment.prod.ts
+touch ~/environment/workshop/frontend/src/environments/environment.prod.ts
 ```
 
-**Action:** Open the `environment.prod.ts` file in VS Code and copy the properties from the `environment.ts` file located in the same folder. The property at this point should only be the following:
+**Action:** Open the `environment.prod.ts` file in Cloud9 and copy the properties from the `environment.ts` file located in the same folder. The property at this point should only be the following:
 
 ```sh
-code ~/Workshop/frontend/src/environments/environment.prod.ts
+code ~/environment/workshop/frontend/src/environments/environment.prod.ts
 ```
 
 **Action:** In `environment.prod.ts`, copy the following code.
@@ -124,7 +148,7 @@ export const environment = {
 **Action:** Add this environment file to the git repo.
 
 ```sh
-git add ~/Workshop/frontend/src/environments/environment.prod.ts
+git add ~/environment/workshop/frontend/src/environments/environment.prod.ts
 ```
 
 ```sh
@@ -133,10 +157,10 @@ git commit -m 'Addition of environment.prod.ts'
 
 ### Build your Web Application
 
-**Action:** Ensure you are in the `~/Workshop/frontend/src` folder
+**Action:** Ensure you are in the `~/environment/workshop/frontend/src` folder
 
 ```sh
-cd ~/Workshop/frontend/
+cd ~/environment/workshop/frontend/
 ```
 
 **Action:** Run `npm install` to install all the prerequisites for your web application
@@ -179,8 +203,7 @@ One of the biggest benefits from AWS CDK is the principal of reusability - Being
 **Action:** Switch back to your `Root Folder`
 
 ```sh
-cd ~/Workshop
-npm install -g aws-cdk
+cd ~/environment/workshop
 ```
 
 **Action:** Create a new folder to contain your AWS CDK application
@@ -209,86 +232,75 @@ npm install -g aws-cdk
 cdk --version
 ```
 
-In the cdk folder, lets now initialize a cdk app, where LANGUAGE is one of the supported programming languages: csharp (C#), java (Java), python (Python), or typescript (TypeScript) and TEMPLATE is an optional template that creates an app with different resources than the default app that cdk init creates for the language.
-
-_cdk init app --language LANGUAGE_
-
-For the purposes of this workshop we will use TypeScript as our language.
+In the cdk folder, lets now initialize a cdk app, where LANGUAGE is one of the supported programming languages: csharp (C#), java (Java), python (Python), or typescript (TypeScript) and TEMPLATE is an optional template that creates an app with different resources than the default app that cdk init creates for the language.  For the purposes of this workshop we will use _CSharp_ as our language.
 
 **Action:** Execute the following command:
 
 ```sh
-cdk init app --language=typescript
+cdk init app --language=csharp
 ```
 
-This command has now initialised a new CDK app in your `~/Workshop/cdk` folder.  Part of the initialisation process also establishes the given directory as a new git repository.
+This command has now initialised a new CDK app in your `~/environment/workshop/cdk` folder.  Part of the initialisation process also establishes the given directory as a new git repository.
 
 #### AWS CDK folder structure
 
-Now, let's implement the code to host our web application.  Open the `cdk` folder in VS Code.
+Now, let's implement the code to host our web application.  
 
-**Action:** Execute the following command:
+Notice the standard structure of an C# AWS CDK app, that consists of a `src` folder.
 
-```sh
-code ~/Workshop/cdk
-```
-
-Notice the standard structure of an AWS CDK app, that consists of a `bin` folder and a `lib` folder.
-
-* The `bin` folder is where we will define the entry point for the CDK app.
-* The `lib` folder is where we will define all our workshop infrastructure components.
+* The `src` folder is where CDK defines the default application structure.
 
 ### Code the GIT repositories for our CDK and our Web applications (DeveloperToolsStack)
 
-Next, within the lib folder you create a file called `developer-tools-stack.ts`.  
+Next, within the src/Cdk folder, create a file called `DeveloperToolsStack.cs`.  
 
 **Action:** Execute the following command:
 
 ```sh
-touch lib/developer-tools-stack.ts
+touch src/Cdk/DeveloperToolsStack.cs
 ```
 
-Open this file in VS Code and define a new construct called `DeveloperToolsStack`, as illustrated below.
+Open this file in Cloud9 and define a new construct called `DeveloperToolsStack`, as illustrated below.
 
 **Action:** Write/Copy the following code:
 
-```typescript
-import cdk = require('@aws-cdk/core');
+```c#
+using Amazon.CDK;
 
-export class DeveloperToolsStack extends cdk.Stack {
-  constructor(scope: cdk.Construct, id: string) {
-      super(scope, id);
-    // The code that defines your stack goes here
-  }
+namespace Cdk
+{
+    internal class DeveloperToolsStack : Stack
+    {
+        public DeveloperToolsStack(Construct parent, string id) : base(parent, id)
+        {
+        }
+    }
 }
 ```
 
-Following the change of filename and classname, you should now update the references in the `bin/cdk.ts` file, as such.
+Following the change of filename and classname, you should now update the references in the `Program.cs` file, as such.
 
 **Action:** Write/Copy the following code:
 
-```typescript
-#!/usr/bin/env node
-import 'source-map-support/register';
-import cdk = require('@aws-cdk/core');
-import { DeveloperToolsStack } from '../lib/developer-tools-stack';
+```c#
+using Amazon.CDK;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
-const app = new cdk.App();
-const developerToolStack = new DeveloperToolsStack(app, 'MythicalMysfits-DeveloperTools');
+namespace Cdk
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var app = new App(null);
+            var developerToolStack = new DeveloperToolsStack(app, "MythicalMysfits-DeveloperTools");
+            app.Synth();
+        }
+    }
+}
 ```
-
-The last step we want to perform before we start implementing our code is to get typescript to automatically watch for file changes and compile the TypeScript files into JavaScript whenever a change is detected.
-
-**Action:** Execute the following command:
-
-* Open a terminal window within VS Code.  Menu > Terminal > New Terminal
-* Within the terminal, execute the following command
-
-```sh
-npm run watch
-```
-
-You may find it helpful to remember to run the `npm run watch` command in a VS Code terminal whenever you are coding.
 
 ### Source Version Control
 
@@ -296,145 +308,147 @@ AWS CodeCommit is a version control service that enables you to privately store 
 
 Next, we will define the code that generates the CodeCommit repository.  But before we do that, we must add a reference to the appropriate `@aws-cdk/aws-codecommit` npm package.
 
-**Action:** Execute the following command from the `~/Workshop/cdk/` directory
+**Action:** Execute the following command from the `~/environment/workshop/cdk/src/Cdk` directory
 
 ```sh
-npm install --save-dev @aws-cdk/aws-codecommit
+dotnet add package Amazon.CDK.AWS.CodeCommit
 ```
 
-Now add an import statement into the `developer-tools-stack.ts` file.
+and add the _using_ statement to the DeveloperTooksStack.cs file
 
-**Action:** Write/Copy the following code:
-
-```typescript
-import codecommit = require('@aws-cdk/aws-codecommit');
+```c#
+using Amazon.CDK.AWS.CodeCommit;
 ```
 
 Once that has completed, let's proceed with defining our AWS CodeCommit repositories.  The AWS CDK consists of a comprehensive array of high level abstractions that both simplify the implementation of your CloudFormation templates as well as providing you with granular control over the resources you generate.
-
-The AWS CodeCommit repositories are defined by using the `Repository` construct such as the following :
-
-```typescript
-new codecommit.Repository(this, 'Repository' ,{
-    repositoryName: 'MyRepositoryName',
-    description: 'Some description.', // optional property
-});
-```
 
 So, to define the CodeCommit repositories we need for this workshop, write the following in the `developer-tools-stack.ts` file.
 
 **Action:** Write/Copy the following code:
 
-```typescript
-const cdkRepository = new codecommit.Repository(this, "CDKRepository", {
-  repositoryName: cdk.Aws.ACCOUNT_ID + "-MythicalMysfitsService-Repository-CDK"
+```c#
+var cdkRepository = new Repository(this, "CDKRepository", new RepositoryProps {
+    RepositoryName = Amazon.CDK.Aws.ACCOUNT_ID + "-MythicalMysfitsService-Repository-CDK"
 });
 
-const webRepository = new codecommit.Repository(this, "WebRepository", {
-  repositoryName: cdk.Aws.ACCOUNT_ID + "-MythicalMysfitsService-Repository-Web"
+var webRepository = new Repository(this, "WebRepository", new RepositoryProps {
+    RepositoryName = Amazon.CDK.Aws.ACCOUNT_ID + "-MythicalMysfitsService-Repository-Web"
 });
 
-this.apiRepository = new codecommit.Repository(this, "APIRepository", {
-  repositoryName: cdk.Aws.ACCOUNT_ID + "-MythicalMysfitsService-Repository-API"
+this.apiRepository = new Amazon.CDK.AWS.CodeCommit.Repository(this, "APIRepository", new RepositoryProps {
+    RepositoryName = Amazon.CDK.Aws.ACCOUNT_ID + "-MythicalMysfitsService-Repository-API"
 });
 
-this.lambdaRepository = new codecommit.Repository(this, "LambdaRepository", {
-  repositoryName: cdk.Aws.ACCOUNT_ID + "-MythicalMysfitsService-Repository-Lambda"
+this.lambdaRepository = new Amazon.CDK.AWS.CodeCommit.Repository(this, "LambdaRepository", new RepositoryProps {
+    RepositoryName = Amazon.CDK.Aws.ACCOUNT_ID + "-MythicalMysfitsService-Repository-Lambda"
 });
 ```
 
 Just before the constructor of the construct, type the following statements which will allow other constructs to reference the repositories:
 
-```typescript
-public readonly apiRepository: codecommit.Repository;
-public readonly lambdaRepository: codecommit.Repository;
+```c#
+public Repository apiRepository { get; }
+public Repository lambdaRepository { get; }
 ```
 
 We can have the generated CloudFormation template provide the clone urls for the generated CodeCommit respositories by defining custom output properties defining `cdk.CfnOutput` constructs, as demonstrated in the code snippet below:
 
-```typescript
-new cdk.CfnOutput(this, 'repositoryCloneUrlHttp', {
-  description: 'Repository CloneUrl HTTP',
-  value: myRepository.repositoryCloneUrlHttp
+```c#
+new CfnOutput(this, "CDKRepositoryCloneUrlHttp", new CfnOutputProps()
+{
+    Description = "CDK Repository CloneUrl HTTP",
+    Value = cdkRepository.RepositoryCloneUrlHttp
 });
 ```
 
 Declare `CfnOutput` for the HTTP and SSH clone URLs for each of your repositories.  Once done, your file should look something list the code block bellow.
 
-```typescript
-import cdk = require("@aws-cdk/core");
-import codecommit = require("@aws-cdk/aws-codecommit");
+```c#
+using Amazon.CDK;
+using Amazon.CDK.AWS.CodeCommit;
 
-export class DeveloperToolsStack extends cdk.Stack {
-  public readonly apiRepository: codecommit.Repository;
-  public readonly lambdaRepository: codecommit.Repository;
+namespace Cdk
+{
+    internal class DeveloperToolsStack : Stack
+    {
+        public Repository apiRepository { get; }
+        public Repository lambdaRepository { get; }
 
-  constructor(scope: cdk.Construct, id: string) {
-    super(scope, id);
+        public DeveloperToolsStack(Construct parent, string id) : base(parent, id)
+        {
+            var cdkRepository = new Repository(this, "CDKRepository", new RepositoryProps
+            {
+                RepositoryName = Amazon.CDK.Aws.ACCOUNT_ID + "-MythicalMysfitsService-Repository-CDK"
+            });
 
-    const cdkRepository = new codecommit.Repository(this, "CDKRepository", {
-      repositoryName: cdk.Aws.ACCOUNT_ID + "-MythicalMysfitsService-Repository-CDK"
-    });
+            var webRepository = new Repository(this, "WebRepository", new RepositoryProps
+            {
+                RepositoryName = Amazon.CDK.Aws.ACCOUNT_ID + "-MythicalMysfitsService-Repository-Web"
+            });
 
-    const webRepository = new codecommit.Repository(this, "WebRepository", {
-      repositoryName: cdk.Aws.ACCOUNT_ID + "-MythicalMysfitsService-Repository-Web"
-    });
+            this.apiRepository = new Amazon.CDK.AWS.CodeCommit.Repository(this, "APIRepository", new RepositoryProps
+            {
+                RepositoryName = Amazon.CDK.Aws.ACCOUNT_ID + "-MythicalMysfitsService-Repository-API"
+            });
 
-    this.apiRepository = new codecommit.Repository(this, "APIRepository", {
-      repositoryName: cdk.Aws.ACCOUNT_ID + "-MythicalMysfitsService-Repository-API"
-    });
+            this.lambdaRepository = new Amazon.CDK.AWS.CodeCommit.Repository(this, "LambdaRepository",
+                new RepositoryProps
+                {
+                    RepositoryName = Amazon.CDK.Aws.ACCOUNT_ID + "-MythicalMysfitsService-Repository-Lambda"
+                });
 
-    this.lambdaRepository = new codecommit.Repository(this, "LambdaRepository", {
-      repositoryName: cdk.Aws.ACCOUNT_ID + "-MythicalMysfitsService-Repository-Lambda"
-    });
+            new CfnOutput(this, "CDKRepositoryCloneUrlHttp", new CfnOutputProps()
+            {
+                Description = "CDK Repository CloneUrl HTTP",
+                Value = cdkRepository.RepositoryCloneUrlHttp
+            });
+            new CfnOutput(this, "CDKRepositoryCloneUrlSsh", new CfnOutputProps()
+            {
+                Description = "CDK Repository CloneUrl SSH",
+                Value = cdkRepository.RepositoryCloneUrlHttp
+            });
 
-    new cdk.CfnOutput(this, 'CDKRepositoryCloneUrlHttp', {
-      description: 'CDK Repository CloneUrl HTTP',
-      value: cdkRepository.repositoryCloneUrlHttp
-    });
+            new CfnOutput(this, "WebRepositoryCloneUrlHttp", new CfnOutputProps()
+            {
+                Description = "Web Repository CloneUrl HTTP",
+                Value = webRepository.RepositoryCloneUrlHttp
+            });
+            new CfnOutput(this, "WebRepositoryCloneUrlSsh", new CfnOutputProps()
+            {
+                Description = "Web Repository CloneUrl SSH",
+                Value = webRepository.RepositoryCloneUrlSsh
+            });
 
-    new cdk.CfnOutput(this, 'CDKRepositoryCloneUrlSsh', {
-      description: 'CDK Repository CloneUrl SSH',
-      value: cdkRepository.repositoryCloneUrlSsh
-    });
+            new CfnOutput(this, "APIRepositoryCloneUrlHttp", new CfnOutputProps()
+            {
+                Description = "API Repository CloneUrl HTTP",
+                Value = apiRepository.RepositoryCloneUrlHttp
+            });
+            new CfnOutput(this, "APIRepositoryCloneUrlSsh", new CfnOutputProps()
+            {
+                Description = "API Repository CloneUrl HTTP",
+                Value = apiRepository.RepositoryCloneUrlSsh
+            });
 
-    new cdk.CfnOutput(this, 'WebRepositoryCloneUrlHttp', {
-      description: 'Web Repository CloneUrl HTTP',
-      value: webRepository.repositoryCloneUrlHttp
-    });
-
-    new cdk.CfnOutput(this, 'WebRepositoryCloneUrlSsh', {
-      description: 'Web Repository CloneUrl SSH',
-      value: webRepository.repositoryCloneUrlSsh
-    });
-
-    new cdk.CfnOutput(this, 'APIRepositoryCloneUrlHttp', {
-      description: 'API Repository CloneUrl HTTP',
-      value: this.apiRepository.repositoryCloneUrlHttp
-    });
-
-    new cdk.CfnOutput(this, 'APIRepositoryCloneUrlSsh', {
-      description: 'API Repository CloneUrl SSH',
-      value: this.apiRepository.repositoryCloneUrlSsh
-    });
-
-    new cdk.CfnOutput(this, "lambdaRepositoryCloneUrlHttp", {
-      value: this.lambdaRepository.repositoryCloneUrlHttp,
-      description: "Lambda Repository Clone Url HTTP"
-    });
-
-    new cdk.CfnOutput(this, "lambdaRepositoryCloneUrlShh", {
-      value: this.lambdaRepository.repositoryCloneUrlSsh,
-      description: "Lambda Repository Clone Url SSH"
-    });
-  }
+            new CfnOutput(this, "lambdaRepositoryCloneUrlHttp", new CfnOutputProps()
+            {
+                Description = "Lambda Repository CloneUrl HTTP",
+                Value = lambdaRepository.RepositoryCloneUrlHttp
+            });
+            new CfnOutput(this, "lambdaRepositoryCloneUrlSsh", new CfnOutputProps()
+            {
+                Description = "Lambda Repository CloneUrl HTTP",
+                Value = lambdaRepository.RepositoryCloneUrlSsh
+            });
+        }
+    }
 }
 ```
 
 ### Commit your CDK Application to source control
 
 ```sh
-cd ~/Workshop/cdk/
+cd ~/environment/workshop/cdk/
 ```
 
 ```sh
@@ -452,12 +466,12 @@ Before we deploy our GIT repositories we can view the CloudFormation template th
 **Action:** Execute the following command:
 
 ```sh
+cd ~/environment/workshop/cdk
+dotnet build src
 cdk synth MythicalMysfits-DeveloperTools
 ```
 
-We can deploy the `MythicalMysfits-DeveloperToolsStack` by executing the `cdk deploy` command from within the `cdk` folder and defining the stack we wish to deploy, such as:
-
-  cdk deploy _stackname_
+We can deploy the `MythicalMysfits-DeveloperToolsStack` by executing the `cdk deploy` command from within the `cdk` folder and defining the stack we wish to deploy:
 
 **Action:** Execute the following command:
 
@@ -485,10 +499,10 @@ Refer to [https://docs.aws.amazon.com/codecommit/latest/userguide/setting-up.htm
 
 Refer to [https://docs.aws.amazon.com/codecommit/latest/userguide/setting-up.html#setting-up-standard](https://docs.aws.amazon.com/codecommit/latest/userguide/setting-up.html#setting-up-standard) for details on how to configure connections via GIT Credentials (SSH)
 
-### Add your CodeCommit Repo to ~/Workshop/frontend
+### Add your CodeCommit Repo to ~/environment/workshop/frontend
 
 ```sh
-cd ~/Workshop/frontend
+cd ~/environment/workshop/frontend
 ```
 
 Execute ONE of the following two commands, based on your chosen method of connection.
@@ -509,10 +523,10 @@ git remote add origin <<Your Web CodeCommit SSH Repository Clone URL>
 git push --set-upstream origin master
 ```
 
-### Add your CodeCommit Repo to ~/Workshop/cdk
+### Add your CodeCommit Repo to ~/environment/workshop/cdk
 
 ```sh
-cd ~/Workshop/cdk
+cd ~/environment/workshop/cdk
 ```
 
 Execute ONE of the following two commands, based on your chosen method of connection.
@@ -537,74 +551,73 @@ git push --set-upstream origin master
 
 Now, let's define the infrastructure needed to host our website.  
 
-Create a new file called `web-application-stack.ts` in the `lib` folder and define the skeleton class structure, by writing/copying the following code:
+Create a new file called `WebApplicationStack.cs` in the `lib` folder and define the skeleton class structure, by writing/copying the following code:
 
 **Action:** Write/Copy the following code:
 
-```typescript
-import cdk = require('@aws-cdk/core');
+```c#
+using System.IO;
+using Amazon.CDK;
 
-export class WebApplicationStack extends cdk.Stack {
-  constructor(app: cdk.App, id: string) {
-    super(app, id);
+namespace Cdk
+{
+    internal class WebApplicationStack : Stack
+    {
+        public WebApplicationStack(Construct parent, string id) : base(parent, id)
+        {
 
-    // The code that defines your stack goes here
-  }
+        }
+    }
 }
 ```
 
-Add an import statement for the `WebApplicationStack` to the `bin/cdk.ts` file.
+Add an import statement for the `WebApplicationStack` to the `Program.cs` file.
 
 **Action:** Write/Copy the following code:
 
-```typescript
-#!/usr/bin/env node
-import 'source-map-support/register';
-import cdk = require('@aws-cdk/core');
-import { WebApplicationStack } from "../lib/web-application-stack";
+```c#
+using Amazon.CDK;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
-const app = new cdk.App();
-
-new WebApplicationStack(app, "MythicalMysfits-WebApplication");
+namespace Cdk
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var app = new App(null);
+            var developerToolStack = new DeveloperToolsStack(app, "MythicalMysfits-DeveloperTools");
+            new WebApplicationStack(app, "MythicalMysfits-WebApplication");
+            app.Synth();
+        }
+    }
+}
 ```
 
 Now we have the required files, let's go through defining the S3 and CloudFront infrastructure.  But before we do that, we must add references to the appropriate npm packages that we will be using.
 
-Execute the following commands from the `~/Workshop/cdk/` directory
+Execute the following commands from the `~/environment/workshop/cdk/src/Cdk` directory
 
 **Action:** Execute the following command:
 
 ```sh
-npm install --save-dev @aws-cdk/aws-cloudfront @aws-cdk/aws-iam @aws-cdk/aws-s3 @aws-cdk/aws-s3-deployment
+dotnet add package Amazon.CDK.AWS.IAM;
+dotnet add package Amazon.CDK.AWS.S3;
+dotnet add package Amazon.CDK.AWS.S3.Deployment;
+dotnet add package Amazon.CDK.AWS.CloudFront;
 ```
 
-### Define the Web Application root directory
-
-Ensure the webAppRoot variable points to the `~/Workshop/frontend/dist/` directory
+In the `WebApplicationStack.cs` file, import the AWS CDK libraries we will be using.  At the top of the file
 
 **Action:** Write/Copy the following code:
 
-In the `web-application-stack.ts` file, We want to import the `path` module, which we will use to resolve the path to our Web Application build folder.
-
-```typescript
-import path = require('path');
-```
-
-Next, import the AWS CDK libraries we will be using.
-
-**Action:** Write/Copy the following code:
-
-```typescript
-import s3 = require('@aws-cdk/aws-s3');
-import cloudfront = require('@aws-cdk/aws-cloudfront');
-import iam = require('@aws-cdk/aws-iam');
-import s3deploy = require('@aws-cdk/aws-s3-deployment');
-```
-
-Now, within the `webapplicationstack.ts` constructor, write the folllowing code.
-
-```typescript
-const webAppRoot = path.resolve(__dirname, '..', '..', 'frontend', 'dist');
+```c#
+using Amazon.CDK.AWS.IAM;
+using Amazon.CDK.AWS.S3;
+using Amazon.CDK.AWS.S3.Deployment;
+using Amazon.CDK.AWS.CloudFront;
 ```
 
 ### Define the S3 bucket
@@ -613,9 +626,11 @@ We are going to define our S3 bucket and define the web index document as 'index
 
 **Action:** Write/Copy the following code:
 
-```typescript
-const bucket = new s3.Bucket(this, "Bucket", {
-  websiteIndexDocument: "index.html"
+```c#
+// Create a S3 bucket, with the given name and define the web index document as 'index.html'
+var bucket = new Bucket(this, "Bucket", new BucketProps
+{
+    WebsiteIndexDocument = "index.html"
 });
 ```
 
@@ -623,17 +638,19 @@ const bucket = new s3.Bucket(this, "Bucket", {
 
 We want to restrict access to our S3 bucket, and only allow access from the CloudFront distribution. We'll use an [Origin Access Identity (OAI)](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/private-content-restricting-access-to-s3.html) to allow CloudFront to access and serve files to our users.
 
-**Action:** Within the `web-application-stack.ts` constructor write the folllowing code:
+**Action:** Within the `WebApplicationStack.cs` constructor write the folllowing code:
 
-```typescript
-const origin = new cloudfront.CfnCloudFrontOriginAccessIdentity(this, "BucketOrigin", {
-  cloudFrontOriginAccessIdentityConfig: {
-    comment: "mythical-mysfits"
+```c#
+// Obtain the cloudfront origin access identity so that the s3 bucket may be restricted to it.
+var origin = new CfnCloudFrontOriginAccessIdentity(this, "BucketOrigin", new CfnCloudFrontOriginAccessIdentityProps{
+  CloudFrontOriginAccessIdentityConfig= new {
+    comment="mysfits-workshop"
   }
 });
 
-bucket.grantRead(new iam.CanonicalUserPrincipal(
-  origin.attrS3CanonicalUserId
+// Restrict the S3 bucket via a bucket policy that only allows our CloudFront distribution
+bucket.GrantRead(new CanonicalUserPrincipal(
+  origin.AttrS3CanonicalUserId
 ));
 ```
 
@@ -643,27 +660,26 @@ Next, Write the definition for a new CloudFront web distribution:
 
 **Action:** Write/Copy the following code:
 
-```typescript
-const cdn = new cloudfront.CloudFrontWebDistribution(this, "CloudFront", {
-  viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.ALLOW_ALL,
-  priceClass: cloudfront.PriceClass.PRICE_CLASS_ALL,
-  originConfigs: [
-    {
-      behaviors: [
-        {
-          isDefaultBehavior: true,
-          maxTtl: undefined,
-          allowedMethods:
-            cloudfront.CloudFrontAllowedMethods.GET_HEAD_OPTIONS
-        }
-      ],
-      originPath: `/web`,
-      s3OriginSource: {
-        s3BucketSource: bucket,
-        originAccessIdentityId: origin.ref
+```c#
+var cdn = new CloudFrontWebDistribution(this, "CloudFront", new CloudFrontWebDistributionProps{
+    ViewerProtocolPolicy = ViewerProtocolPolicy.ALLOW_ALL,
+    PriceClass = PriceClass.PRICE_CLASS_ALL,
+    OriginConfigs = new SourceConfiguration[] {
+      new SourceConfiguration {
+          Behaviors = new Behavior[] {
+            new Behavior {
+                IsDefaultBehavior = true,
+                MaxTtl = null,
+                AllowedMethods = CloudFrontAllowedMethods.GET_HEAD_OPTIONS
+            }
+          },
+          OriginPath="/web",
+          S3OriginSource = new S3OriginConfig {
+            S3BucketSource=bucket,
+            OriginAccessIdentityId=origin.Ref
+          }
       }
     }
-  ]
 });
 ```
 
@@ -671,13 +687,18 @@ const cdn = new cloudfront.CloudFrontWebDistribution(this, "CloudFront", {
 
 Now we want to use a handy CDK helper that takes the defined source directory, compresses it, and uploads it to the destination s3 bucket:
 
-```typescript
-new s3deploy.BucketDeployment(this, "DeployWebsite", {
-  sources: [s3deploy.Source.asset(webAppRoot)],
-  destinationKeyPrefix: "web/",
-  destinationBucket: bucket,
-  distribution: cdn,
-  retainOnDelete: false
+```c#
+string currentPath = Directory.GetCurrentDirectory();
+// A CDK helper that takes the defined source directory, compresses it, and uploads it to the destination s3 bucket.
+new BucketDeployment(this, "DeployWebsite", new BucketDeploymentProps
+{
+    Sources = new ISource[]{
+      Source.Asset(Path.Combine(currentPath, "../Web"))
+    },
+    DestinationBucket = bucket,
+    DestinationKeyPrefix = "web/",
+    Distribution = cdn,
+    RetainOnDelete = false,
 });
 ```
 
@@ -687,18 +708,24 @@ Finally, we want to define a cloudformation output for the domain name assigned 
 
 **Action:** Write/Copy the following code:
 
-```typescript
-new cdk.CfnOutput(this, "CloudFrontURL", {
-  description: "The CloudFront distribution URL",
-  value: "https://" + cdn.domainName
+```c#
+// Create a CDK Output which details the URL for the CloudFront Distribtion URL.
+new CfnOutput(this, "CloudFrontURL", new CfnOutputProps
+{
+    Description = "The CloudFront distribution URL",
+    Value = "http://" + cdn.DomainName
 });
 ```
 
-With that, we have completed writing the components of our module 1 stack.  Your `cdk` folder should resemble like the reference implementation, which can be found in the `~/Workshop/source/module-1/cdk/` directory.
+With that, we have completed writing the components of our module 1 stack.  Your `cdk` folder should resemble like the reference implementation, which can be found in the `~/environment/workshop/source/module-1/cdk/` directory.
 
 ### View the synthesized CloudFormation template
 
-From within the `~/Workshop/cdk` folder run the `cdk synth MythicalMysfits-WebApplication` command to display the CloudFormation template that is generated based on the code you have just written.
+From within the `~/environment/workshop/cdk` folder run the `cdk synth` command to display the CloudFormation template that is generated based on the code you have just written.
+
+```c#
+cdk synth MythicalMysfits-WebApplication
+```
 
 ### Commit your changes
 
@@ -707,7 +734,7 @@ Commit the changes to your CDK application to GIT by executing the following com
 **Action:** Execute the following commands:
 
 ```sh
-cd ~/Workshop/cdk
+cd ~/environment/workshop/cdk
 ```
 
 ```sh
@@ -736,15 +763,13 @@ The first time you deploy an AWS CDK app that deploys content into a S3 environm
 cdk bootstrap
 ```
 
-We can deploy the `MythicalMysfits-WebApplication` by executing the `cdk deploy` command from within the `cdk` folder and defining the stack we wish to deploy, such as:
-
-  cdk deploy _stackname_
-
-Execute the following command
+We can deploy the `MythicalMysfits-WebApplication` by executing the `cdk deploy` command from within the `cdk` folder and defining the stack we wish to deploy.
 
 **Action:** Execute the following command:
 
 ```sh
+cd ~/environment/workshop/cdk
+dotnet build src
 cdk deploy MythicalMysfits-WebApplication
 ```
 

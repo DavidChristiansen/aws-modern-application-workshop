@@ -5,7 +5,7 @@
 **Time to complete:** 20 minutes
 
 ---
-**Short of time?:** If you are short of time, refer to the completed reference AWS CDK code in `~/Workshop/source/module-3/cdk/`
+**Short of time?:** If you are short of time, refer to the completed reference AWS CDK code in `~/environment/workshop/source/module-3/cdk/`
 
 ---
 
@@ -31,7 +31,7 @@ To create the table using the AWS CDK, do the following.
 Let's start off by switching once again to our Workshop's CDK folder, and opening it in our editor:
 
 ```sh
-cd ~/Workshop/cdk
+cd ~/environment/workshop/cdk
 ```
 
 ```sh
@@ -41,7 +41,7 @@ code .
 Create a new file in the `lib` folder called `dynamodb-stack.ts`.
 
 ```sh
-touch ~/Workshop/cdk/lib/dynamodb-stack.ts
+touch ~/environment/workshop/cdk/lib/dynamodb-stack.ts
 ```
 
 __Note__ As before, you may find it helpful to run the command `npm run watch` from within the CDK folder to provide compile time error reporting whilst you develop your AWS CDK constructs.  We recommend running this from the terminal window within VS Code.
@@ -236,7 +236,7 @@ Make sure our TypeScript has been compiled.
 **Action:** Execute the following command:
 
 ```sh
-cd ~/Workshop/cdk
+cd ~/environment/workshop/cdk
 ```
 
 ```sh
@@ -283,7 +283,7 @@ Also provided is a JSON file that can be used to batch insert a number of Mysfit
 **Action:** Execute the following command:
 
 ```sh
-aws dynamodb batch-write-item --request-items file://~/Workshop/source/module-3/data/populate-dynamodb.json
+aws dynamodb batch-write-item --request-items file://~/environment/workshop/source/module-3/data/populate-dynamodb.json
 ```
 
 Now, if you run the same command to scan all of the table contents, you'll find the items have been loaded into the table:
@@ -303,7 +303,7 @@ The request is formed using the AWS .NET SDK Nuget package for DynamoDB called *
 **Action:** Execute the following command:
 
 ```sh
-cp -r ~/Workshop/source/module-3/webapi/* ~/Workshop/webapi/
+cp -r ~/environment/workshop/source/module-3/webapi/* ~/environment/workshop/webapi/
 ```
 
 #### Push the Updated Code into the CI/CD Pipeline
@@ -313,7 +313,7 @@ Now, we need to check in these code changes to CodeCommit using the git command 
 **Action:** Execute the following commands:
 
 ```sh
-cd ~/Workshop/webapi/
+cd ~/environment/workshop/webapi/
 ```
 
 ```sh
@@ -337,10 +337,10 @@ Finally, we need to publish our Angular app to our S3 bucket so that the new API
 **Action:** Execute the following command:
 
 ```sh
-cp -r ~/Workshop/source/module-3/frontend/* ~/Workshop/frontend/
+cp -r ~/environment/workshop/source/module-3/frontend/* ~/environment/workshop/frontend/
 ```
 
-You will need to create or update your Angular environment file located in the `~/Workshop/frontend/environments/` folder. Make sure the file is named `environment.prod.ts`.
+You will need to create or update your Angular environment file located in the `~/environment/workshop/frontend/environments/` folder. Make sure the file is named `environment.prod.ts`.
 
 Open the `environment.prod.ts` file in VS Code and copy the `categories` property from the `environment.ts` file located in the same folder.
 ![update-angular-environment](/images/module-3/update-angular-environment.png)
@@ -352,7 +352,7 @@ Deploy your updated angular app by running the following command:
 Since we use `npm run build -- --prod` to build the Angular app, we'll need to create a `prod` version of the `environment` file.
 
 ```sh
-cd ~/Workshop/frontend
+cd ~/environment/workshop/frontend
 ```
 
 ```sh
@@ -361,7 +361,7 @@ npm run build -- --prod
 ```
 
 ```sh
-cd ~/Workshop/cdk
+cd ~/environment/workshop/cdk
 ```
 
 ```sh

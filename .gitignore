@@ -607,3 +607,4 @@ environment.prod.ts
 alchemist
 taskcat
 templates
+.github/*

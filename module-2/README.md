@@ -5,7 +5,7 @@
 **Time to complete:** 60 minutes
 
 ---
-**Short of time?:** If you are short of time, refer to the completed AWS CDK code in `~/Workshop/source/module-2/cdk/`
+**Short of time?:** If you are short of time, refer to the completed AWS CDK code in `~/environment/workshop/source/module-2/cdk/`
 
 ---
 
@@ -31,18 +31,18 @@ In Module 2, using [AWS CDK](https://aws.amazon.com/cdk/), you will create a new
 
 Next, you will create a Docker container image that contains all of the code and configuration required to run the Mythical Mysfits backend as a microservice API created with .NET Core. We will build the docker container image within our local terminal and then push it to the Amazon Elastic Container Registry, where it will be available to pull when we create our service using Fargate.
 
-All of the code required to run our service backend is stored within the `~/Workshop/source/module-2/webapi/` directory of the repository you've cloned into your local dev environment.  If you would like to review the .NET Core code that is used to create the service API, view the `~/Workshop/source/module-2/webapi/Controllers/MysfitsController.cs` file.
+All of the code required to run our service backend is stored within the `~/environment/workshop/source/module-2/webapi/` directory of the repository you've cloned into your local dev environment.  If you would like to review the .NET Core code that is used to create the service API, view the `~/environment/workshop/source/module-2/webapi/Controllers/MysfitsController.cs` file.
 
 If you do not have Docker installed on your machine, you will need to install it. If you have it aleady installed, we can build the image by running the following commands.
 
-**Action:** Create the directory `~/Workshop/webapi/`
+**Action:** Create the directory `~/environment/workshop/webapi/`
 
 ```sh
-mkdir ~/Workshop/webapi/
+mkdir ~/environment/workshop/webapi/
 ```
 
 ```sh
-cd ~/Workshop/webapi/
+cd ~/environment/workshop/webapi/
 ```
 
 ```sh
@@ -52,7 +52,7 @@ git init
 **Action:** Copy the API code to your local directory.
 
 ```sh
-cp -r ~/Workshop/source/module-2/webapi/* ~/Workshop/webapi/
+cp -r ~/environment/workshop/source/module-2/webapi/* ~/environment/workshop/webapi/
 ```
 
 ```sh
@@ -78,7 +78,7 @@ Make sure our TypeScript has been compiled.
 **Action:** Execute the following command:
 
 ```sh
-cd ~/Workshop/cdk
+cd ~/environment/workshop/cdk
 ```
 
 ```sh
@@ -93,12 +93,12 @@ And now deploy the updated DeveloperTools stack
 cdk deploy MythicalMysfits-DeveloperTools
 ```
 
-#### Add the WebAPI CodeCommit repository as the remote for `~/Workshop/webapi`
+#### Add the WebAPI CodeCommit repository as the remote for `~/environment/workshop/webapi`
 
 Execute ONE of the following two commands, based on your chosen method of connection.
 
 ```sh
-cd ~/Workshop/webapi/
+cd ~/environment/workshop/webapi/
 ```
 
 _Note:_ If using HTTPS connection method, execute this command
@@ -159,7 +159,7 @@ As a result you will see docker reporting that your container is up and running 
 
 To test our service with a local request, open up the above ip address in your browser of choice. Append /api/mysfits to the end of the URI in the address bar of the preview browser and hit enter:
 
-If successful you will see a response from the service that returns the JSON document stored at `~/Workshop/webapi/mysfits-response.json`
+If successful you will see a response from the service that returns the JSON document stored at `~/environment/workshop/webapi/mysfits-response.json`
 
 When done testing the service you can stop it by pressing CTRL-C on PC or Mac.
 
@@ -190,7 +190,7 @@ Let's start off by switching once again to our Workshop's CDK folder, and openin
 **Action:** Execute the following command:
 
 ```sh
-cd ~/Workshop/cdk
+cd ~/environment/workshop/cdk
 ```
 
 ```sh
@@ -200,7 +200,7 @@ code .
 Create a new file in the `lib` folder called `network-stack.ts`.
 
 ```sh
-touch ~/Workshop/cdk/lib/network-stack.ts
+touch ~/environment/workshop/cdk/lib/network-stack.ts
 ```
 
 __Note__ As before, you may find it helpful to run the command `npm run watch` from within the CDK folder to provide compile time error reporting whilst you develop your AWS CDK constructs.  We recommend running this from the terminal window within VS Code.
@@ -246,7 +246,7 @@ First, we need to add a install the CDK NPM package for AWS EC2, doing so like b
 **Action:** Execute the following command:
 
 ```sh
-cd ~/Workshop/cdk
+cd ~/environment/workshop/cdk
 ```
 
 ```sh
@@ -271,7 +271,7 @@ export class NetworkStack extends cdk.Stack {
 }
 ```
 
-Seriously!, that is all you need to define a VPC!  Let's now run the `cdk synth` command to observe what this single line generates.  In a terminal window, navigate to `~/workshop/cdk/` and run the following command:
+Seriously!, that is all you need to define a VPC!  Let's now run the `cdk synth` command to observe what this single line generates.  In a terminal window, navigate to `~/environment/workshop/cdk/` and run the following command:
 
 __Note__: We are assigning the instance of our VPC to a local property so that it may be referenced by other stacks.
 
@@ -312,7 +312,7 @@ As before, let's create a new file within the `lib` folder, this time called `ec
 **Action:** Execute the following command:
 
 ```sh
-touch ~/Workshop/cdk/lib/ecr-stack.ts
+touch ~/environment/workshop/cdk/lib/ecr-stack.ts
 ```
 
 And again, as before, define the skeleton structure of a CDK Stack.
@@ -357,7 +357,7 @@ Now, let's define our ECR instance.  But first, we need to add a install the CDK
 **Action:** Execute the following command:
 
 ```sh
-cd ~/Workshop/cdk
+cd ~/environment/workshop/cdk
 ```
 
 ```sh
@@ -390,7 +390,7 @@ Now, deploy your ECR using the following command
 **Action:** Execute the following command:
 
 ```sh
-cd ~/Workshop/cdk
+cd ~/environment/workshop/cdk
 ```
 
 ```sh
@@ -446,7 +446,7 @@ Now, let's define our ECS instance.  But first, we need to add a install the CDK
 **Action:** Execute the following commands:
 
 ```sh
-cd ~/Workshop/cdk
+cd ~/environment/workshop/cdk
 ```
 
 ```sh
@@ -462,7 +462,7 @@ As before, let's create a new file within the `lib` folder, this time called `ec
 **Action:** Execute the following command:
 
 ```sh
-touch ~/Workshop/cdk/lib/ecs-stack.ts
+touch ~/environment/workshop/cdk/lib/ecs-stack.ts
 ```
 
 Define the skeleton structure of a CDK Stack.
@@ -657,7 +657,7 @@ Make sure your CDK application compiles without error (by either running `npm ru
 **Action:** Execute the following command:
 
 ```sh
-cd ~/Workshop/cdk
+cd ~/environment/workshop/cdk
 ```
 
 #### Creating a Service Linked Role for ECS
@@ -705,7 +705,7 @@ Next, we need to integrate our Angular app with your new API backend instead of 
 **Action:** Execute the following command:
 
 ```sh
-cp -r ~/Workshop/source/module-2/frontend/* ~/Workshop/frontend/
+cp -r ~/environment/workshop/source/module-2/frontend/* ~/environment/workshop/frontend/
 ```
 
 ### Replace the API Endpoint and Upload to S3
@@ -715,7 +715,7 @@ Navigate to the `environments` folder in the Angular app.
 **Action:** Execute the following command:
 
 ```sh
-cd ~/Workshop/frontend/src/environments
+cd ~/environment/workshop/frontend/src/environments
 ```
 
 We'll copy the existing local `environment.ts` file to create our `prod` version.
@@ -737,7 +737,7 @@ Since we use `npm run build -- --prod` to build the Angular app, we'll need to c
 **Action:** Execute the following commands:
 
 ```sh
-cd ~/Workshop/frontend
+cd ~/environment/workshop/frontend
 ```
 
 ```sh
@@ -746,7 +746,7 @@ npm run build -- --prod
 ```
 
 ```sh
-cd ~/Workshop/cdk
+cd ~/environment/workshop/cdk
 ```
 
 ```sh
@@ -774,7 +774,7 @@ Let's start off by switching once again to our Workshop's CDK folder, and openin
 **Action:** Execute the following command:
 
 ```sh
-cd ~/Workshop/cdk
+cd ~/environment/workshop/cdk
 ```
 
 ```sh
@@ -784,7 +784,7 @@ code .
 Create a new file in the `lib` folder called `cicd-stack.ts`.
 
 ```sh
-touch ~/Workshop/cdk/lib/cicd-stack.ts
+touch ~/environment/workshop/cdk/lib/cicd-stack.ts
 ```
 
 __Note__ As before, you may find it helpful to run the command `npm run watch` from within the CDK folder to provide compile time error reporting whilst you develop your AWS CDK constructs.  We recommend running this from the terminal window within VS Code.
@@ -794,7 +794,7 @@ First, we need to add a install the CDK NPM package for AWS EC2, doing so like b
 **Action:** Execute the following command:
 
 ```sh
-cd ~/Workshop/cdk
+cd ~/environment/workshop/cdk
 ```
 
 ```sh
@@ -1012,7 +1012,7 @@ Make sure our TypeScript has been compiled.
 **Action:** Execute the following command:
 
 ```sh
-cd ~/Workshop/cdk
+cd ~/environment/workshop/cdk
 ```
 
 ```sh
@@ -1031,14 +1031,14 @@ cdk deploy MythicalMysfits-CICD
 
 #### Pushing a Code Change
 
-Now the completed service code that we used to create our Fargate service in Module 2 is stored in the local repository that we just cloned from AWS CodeCommit.  Let's make a change to the .NET service before committing our changes to demonstrate that the CI/CD pipeline we've created is working. In Visual Studio Code, open the file stored at `~/Workshop/api/service/mysfits-response.json` and change the age of one of the mysfits to another value and save the file.
+Now the completed service code that we used to create our Fargate service in Module 2 is stored in the local repository that we just cloned from AWS CodeCommit.  Let's make a change to the .NET service before committing our changes to demonstrate that the CI/CD pipeline we've created is working. In Visual Studio Code, open the file stored at `~/environment/workshop/api/service/mysfits-response.json` and change the age of one of the mysfits to another value and save the file.
 
 After saving the file, change directories to the new repository directory:
 
 **Action:** Execute the following command:
 
 ```sh
-cd ~/Workshop/webapi
+cd ~/environment/workshop/webapi
 ```
 
 Then, run the following git commands to push in your code changes.  

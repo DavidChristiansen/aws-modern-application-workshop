@@ -5,7 +5,7 @@
 **Time to complete:** 60 minutes
 
 ---
-**Short of time?:** If you are short of time, refer to the completed reference AWS CDK code in `~/Workshop/source/module-4/cdk/`
+**Short of time?:** If you are short of time, refer to the completed reference AWS CDK code in `~/environment/workshop/source/module-4/cdk/`
 
 ---
 
@@ -37,11 +37,11 @@ __Note__ As before, you may find it helpful to run the command `npm run watch` f
 To create the **Cognito User Pool** where all of the Mythical Mysfits visitors will be stored, create a new TypeScript file which we will use to define the Cognito stack.
 
 ```sh
-cd ~/workshop/cdk
+cd ~/environment/workshop/cdk
 touch lib/cognito-stack.ts
 ```
 
-Open the file `cognito-stack.ts` in your editor (eg: `code ~/workshop/cdk/lib/cognito.ts`) and define the following stack template:
+Open the file `cognito-stack.ts` in your editor (eg: `code ~/environment/workshop/cdk/lib/cognito.ts`) and define the following stack template:
 
 ```typescript
 import cdk = require("@aws-cdk/core");
@@ -155,21 +155,21 @@ The `securityDefinitions` object within the API definition indicates that we hav
 First we will do some prep work in our workshop folder.  Updating the WebAPI code and copying over our swagger file.
 
 ```sh
-cd ~/Workshop/webapi
+cd ~/environment/workshop/webapi
 ```
 
 ```sh
-cp -r ~/Workshop/source/module-4/webapi/* ~/Workshop/webapi/
+cp -r ~/environment/workshop/source/module-4/webapi/* ~/environment/workshop/webapi/
 ```
 
 ```sh
-cp ~/Workshop/source/module-4/api/api-swagger.json ~/Workshop/cdk
+cp ~/environment/workshop/source/module-4/api/api-swagger.json ~/environment/workshop/cdk
 ```
 
 Let's deploy the VPCLink and the API Gateway.  To create the API using the AWS CDK, start off by switching once again to our Workshop's CDK folder, and opening it in our editor:
 
 ```sh
-cd ~/Workshop/cdk
+cd ~/environment/workshop/cdk
 ```
 
 ```sh
@@ -179,7 +179,7 @@ code .
 Create a new file in the `lib` folder called `api-gateway-stack.ts`.
 
 ```sh
-touch ~/Workshop/cdk/lib/api-gateway-stack.ts
+touch ~/environment/workshop/cdk/lib/api-gateway-stack.ts
 ```
 
 __Note__ As before, you may find it helpful to run the command `npm run watch` from within the CDK folder to provide compile time error reporting whilst you develop your AWS CDK constructs.  We recommend running this from the terminal window within VS Code.
@@ -244,7 +244,7 @@ const apiGateway = new APIGatewayStack(app, "MythicalMysfits-APIGateway", {
 });
 ```
 
-Install the AWS CDK npm package for API Gateway by executing the following command from within the `~/Workshop/cdk/` directory.
+Install the AWS CDK npm package for API Gateway by executing the following command from within the `~/environment/workshop/cdk/` directory.
 
 **Action:** Execute the following commands:
 
@@ -336,7 +336,7 @@ Once you have finished, deploy your stacks.
 **Action:** Execute the following commands:
 
 ```sh
-cd ~/Workshop/cdk
+cd ~/environment/workshop/cdk
 ```
 
 ```sh
@@ -364,11 +364,11 @@ Let's take care of that next.
 To accommodate the new functionality to view Mysfit Profiles, like, and adopt them, we have included an updated Mysfits Controller with the additional .NET methods.  Let's overwrite your existing codebase with these files and push them into the repository:
 
 ```sh
-cd ~/Workshop/webapi/
+cd ~/environment/workshop/webapi/
 ```
 
 ```sh
-cp -r ~/Workshop/source/module-4/webapi/* ~/Workshop/webapi/
+cp -r ~/environment/workshop/source/module-4/webapi/* ~/environment/workshop/webapi/
 ```
 
 ```sh
@@ -387,9 +387,9 @@ While those service updates are being automatically pushed through your CI/CD pi
 
 #### Update the Mythical Mysfits Website in S3
 
-**Note:** Be sure that the `environment.prod.ts` file exists in `~/Workshop/frontend/src/environments/environment.prod.ts` and has the same values as the previous module.
+**Note:** Be sure that the `environment.prod.ts` file exists in `~/environment/workshop/frontend/src/environments/environment.prod.ts` and has the same values as the previous module.
 
-You'll need to add our new API as an environment value in the `environment.prod.ts` file. Navigate to `~/Workshop/frontend/src/environments/environment.prod.ts` and create a key/value pair like the following:
+You'll need to add our new API as an environment value in the `environment.prod.ts` file. Navigate to `~/environment/workshop/frontend/src/environments/environment.prod.ts` and create a key/value pair like the following:
 
 ```js
 export const environment = {
@@ -399,7 +399,7 @@ export const environment = {
 }
 ```
 
-**Note:** Reference the `~/Workshop/source/module-4/frontend/src/environments/environment.ts` file to see an example.
+**Note:** Reference the `~/environment/workshop/source/module-4/frontend/src/environments/environment.ts` file to see an example.
 
 To retrieve the values you need to replace in the URL, you can visit the API Gateway console in AWS, or use one of the following commands:
 
@@ -418,7 +418,7 @@ Once you've updated the `environment.prod.ts` file, Deploy your updated angular 
 Since we use `npm run build -- --prod` to build the Angular app, we'll need to create a `prod` version of the `environment` file.
 
 ```sh
-cd ~/Workshop/frontend
+cd ~/environment/workshop/frontend
 ```
 
 ```sh
@@ -427,7 +427,7 @@ npm run build -- --prod
 ```
 
 ```sh
-cd ~/Workshop/cdk
+cd ~/environment/workshop/cdk
 ```
 
 ```sh

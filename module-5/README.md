@@ -5,7 +5,7 @@
 **Time to complete:** 30 minutes
 
 ---
-**Short of time?:** If you are short of time, refer to the completed reference AWS CDK code in `~/Workshop/source/module-5/cdk/`
+**Short of time?:** If you are short of time, refer to the completed reference AWS CDK code in `~/environment/workshop/source/module-5/cdk/`
 
 ---
 
@@ -52,7 +52,7 @@ This new stack you will deploy using AWS CDK will not only contain the infrastru
 Let's start off by switching once again to our Workshop's CDK folder, and opening it in our editor:
 
 ```sh
-cd ~/Workshop/cdk
+cd ~/environment/workshop/cdk
 ```
 
 ```sh
@@ -62,7 +62,7 @@ code .
 Create a new file in the `lib` folder called `kinesis-firehose-stack.ts`.
 
 ```sh
-touch ~/Workshop/cdk/lib/kinesis-firehose-stack.ts
+touch ~/environment/workshop/cdk/lib/kinesis-firehose-stack.ts
 ```
 
 __Note__ As before, you may find it helpful to run the command `npm run watch` from within the CDK folder to provide compile time error reporting whilst you develop your AWS CDK constructs.  We recommend running this from the terminal window within VS Code.
@@ -85,7 +85,7 @@ export class KinesisFirehoseStack extends cdk.Stack {
 **Action:** Execute the following command:
 
 ```sh
-cd ~/Workshop/cdk/
+cd ~/environment/workshop/cdk/
 ```
 
 ```sh
@@ -169,7 +169,7 @@ During Module 1, you created a codecommit repository for our Lambda code.  Remin
 **Action:** Execute the following commands:
 
 ```sh
-cd ~/Workshop/
+cd ~/environment/workshop/
 ```
 
 ```sh
@@ -183,7 +183,7 @@ Now, let's move our working directory into this new repository:
 **Action:** Execute the following commands:
 
 ```sh
-cd ~/Workshop/lambda/
+cd ~/environment/workshop/lambda/
 ```
 
 Then, copy the module-5 application components to our newly cloned repository, within a folder called stream:
@@ -191,7 +191,7 @@ Then, copy the module-5 application components to our newly cloned repository, w
 **Action:** Execute the following commands:
 
 ```sh
-cp -r ~/Workshop/source/module-5/lambda/* ~/Workshop/lambda/
+cp -r ~/environment/workshop/source/module-5/lambda/* ~/environment/workshop/lambda/
 ```
 
 ### Update the Lambda Function Package and Code
@@ -236,7 +236,7 @@ git push
 **Action:** Execute the following commands:
 
 ```sh
-cd ~/Workshop/cdk
+cd ~/environment/workshop/cdk
 ```
 
 Back in the `KinesisFirehoseStack` file,  we will now define the Kinesis Firehose infrastructure.  First, let's define the kinesis firehose implementation.
@@ -436,7 +436,7 @@ cdk deploy MythicalMysfits-KinesisFirehose
 
 #### Update the Website Content and Push the New Site to S3
 
-With the streaming stack up and running, we now need to publish a new version of our Mythical Mysfits frontend. You will need to update the production `environment` file that you created in module 3 with the value of StreamingApiEndpoint you copied from the last step. Remember this environment file is located inside this folder `~/Workshop/frontend/src/environments/` and the file is named `environment.prod.ts`. Do not include the /mysfits path.
+With the streaming stack up and running, we now need to publish a new version of our Mythical Mysfits frontend. You will need to update the production `environment` file that you created in module 3 with the value of StreamingApiEndpoint you copied from the last step. Remember this environment file is located inside this folder `~/environment/workshop/frontend/src/environments/` and the file is named `environment.prod.ts`. Do not include the /mysfits path.
 
 ![update-angular-environment](/images/module-5/update-angular-environment.png)
 
@@ -447,11 +447,11 @@ After replacing the endpoint to point with your new streaming endpoint, deploy y
 We use `npm run build -- --prod` to build the Angular app.
 
 ```sh
-cd ~/Workshop/frontend
+cd ~/environment/workshop/frontend
 ```
 
 ```sh
-cp -r ~/Workshop/source/module-5/frontend/* ~/Workshop/frontend/
+cp -r ~/environment/workshop/source/module-5/frontend/* ~/environment/workshop/frontend/
 ```
 
 ```sh
@@ -469,7 +469,7 @@ npm run build -- --prod
 ```
 
 ```sh
-cd ~/Workshop/cdk
+cd ~/environment/workshop/cdk
 ```
 
 ```sh
