@@ -467,7 +467,13 @@ Before we deploy our GIT repositories we can view the CloudFormation template th
 
 ```sh
 cd ~/environment/workshop/cdk
+```
+
+```sh
 dotnet build src
+```
+
+```sh
 cdk synth MythicalMysfits-DeveloperTools
 ```
 

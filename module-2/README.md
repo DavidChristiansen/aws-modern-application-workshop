@@ -71,28 +71,6 @@ We need to configure git and integrate it with your CodeCommit repository.
 
 With the generated Git credentials downloaded, we are ready to clone our repository using the following terminal command:
 
-#### Deploy the updated developer tools stack
-
-Make sure our TypeScript has been compiled.
-
-**Action:** Execute the following command:
-
-```sh
-cd ~/environment/workshop/cdk
-```
-
-```sh
-npm run build
-```
-
-And now deploy the updated DeveloperTools stack
-
-**Action:** Execute the following command:
-
-```sh
-cdk deploy MythicalMysfits-DeveloperTools
-```
-
 #### Add the WebAPI CodeCommit repository as the remote for `~/environment/workshop/webapi`
 
 Execute ONE of the following two commands, based on your chosen method of connection.
@@ -104,31 +82,18 @@ cd ~/environment/workshop/webapi/
 _Note:_ If using HTTPS connection method, execute this command
 
 ```sh
-git remote add origin <<The HTTPS value for your API Respository>
+git remote add origin _The HTTPS value for your API Respository_
 ```
 
 _Note:_ If using SSH connection method, execute this command
 
 ```sh
-git remote add origin <<The SSH value for your API Respository>
+git remote add origin _The SSH value for your API Respository_
 ```
 
 ## Building A Docker Image
 
-Now, build the Docker image. This will use the file in the current directory called `Dockerfile` that tells Docker all of the instructions that should take place when the build command is executed. Replace the contents in and the {braces} below with the appropriate information from the account/region you're working in.
-
-To retrieve the needed information about your account and region, you can run the following CLI command that uses the AWS Security Token Service to return back information about the principal issuing either the CLI command or the PoewrShell command:
-
-```sh
-aws sts get-caller-identity
-```
-
-Once you have your Account ID, you are ready to build the docker image using the conmand such as the following:
-`docker build . -t REPLACE_ME_AWS_ACCOUNT_ID.dkr.ecr.REPLACE_ME_REGION.amazonaws.com/mythicalmysfits/service:latest`
-
-However, for simplicity, you may execute the following command which will automatically generate the appropriate docker build command:
-
-_Note:_ If you use `Bash`, execute the following command:
+Now, build the Docker image. This will use the file in the current directory called `Dockerfile` that tells Docker all of the instructions that should take place when the build command is executed.  Build the docker image using the conmand as follows:
 
 ```sh
 docker build . -t $(aws sts get-caller-identity --query Account --output text).dkr.ecr.$(aws configure get region).amazonaws.com/mythicalmysfits/service:latest
@@ -174,7 +139,7 @@ Amazon ECS has two launch types:
 
 With Fargate launch type, all you have to do is package your application in containers, specify the CPU and memory requirements, define networking and IAM policies, and launch the application. For brevity in this workshop, we will use the Fargate launch type.
 
-### Create Network Stack
+## Create Network Stack
 
 Before we can create our service, we need to create the core infrastructure environment that the service will use, including the networking infrastructure in [Amazon VPC](https://aws.amazon.com/vpc/), and the AWS Identity and Access Management Roles that will define the permissions that ECS and our containers will have on top of AWS.  
 
@@ -197,85 +162,101 @@ cd ~/environment/workshop/cdk
 code .
 ```
 
-Create a new file in the `lib` folder called `network-stack.ts`.
+Create a new file in the `cdk/src/Cdk/` folder called `NetworkStack.cs`.
 
 ```sh
-touch ~/environment/workshop/cdk/lib/network-stack.ts
+touch ~/environment/workshop/cdk/src/Cdk/NetworkStack.cs
 ```
 
-__Note__ As before, you may find it helpful to run the command `npm run watch` from within the CDK folder to provide compile time error reporting whilst you develop your AWS CDK constructs.  We recommend running this from the terminal window within VS Code.
+### .NET Core References
 
-Within the file you just created, define the skeleton CDK Stack structure as we have done before, this time naming the class `NetworkStack`:
-
-**Action:** Write/Copy the following code:
-
-```typescript
-import cdk = require('@aws-cdk/core');
-
-export class NetworkStack extends cdk.Stack {
-  constructor(scope: cdk.Construct, id:string) {
-    super(scope, id);
-
-    // The code that defines your stack goes here
-  }
-}
-```
-
-Then, add the NetworkStack to our CDK application definition in `bin/cdk.ts`, when done, your `bin/cdk.ts` should look like this;
-
-**Action:** Write/Copy the following code:
-
-```typescript
-#!/usr/bin/env node
-
-import cdk = require("@aws-cdk/core");
-import "source-map-support/register";
-import { DeveloperToolsStack } from "../lib/developer-tools-stack";
-import { WebApplicationStack } from "../lib/web-application-stack";
-import { NetworkStack } from "../lib/network-stack";
-
-const developerToolStack = new DeveloperToolsStack(app, 'MythicalMysfits-DeveloperTools');
-new WebApplicationStack(app, "MythicalMysfits-WebApplication");
-const networkStack = new NetworkStack(app, "MythicalMysfits-Network");
-```
-
-Now, we can define our VPC using AWS CDK.  Once again, AWS CDK makes the implementation of AWS Components and Services a breeze by providing you with high level abstractions.  Let's demonstrate this now.
-
-First, we need to add a install the CDK NPM package for AWS EC2, doing so like below;
+We need to add a install the CDK NPM package for AWS EC2, doing so like below;
 
 **Action:** Execute the following command:
 
 ```sh
-cd ~/environment/workshop/cdk
+cd ~/environment/workshop/cdk/src/Cdk
 ```
 
 ```sh
-npm install --save-dev @aws-cdk/aws-ec2
+dotnet add package Amazon.CDK.AWS.EC2
 ```
 
-Within the `network-stack.ts` file, define the following VPC construct:
+## Defining the Network Stack
+
+Within the file you just created, define the Network Stack by typing/copying the code below.  We will step through the main parts shortly.
 
 **Action:** Write/Copy the following code:
 
-```typescript
-import ec2 = require("@aws-cdk/aws-ec2");
+```c#
+using Amazon.CDK;
+using Amazon.CDK.AWS.EC2;
 
-export class NetworkStack extends cdk.Stack {
-  public readonly vpc: ec2.Vpc;
-
-  constructor(scope: cdk.Construct, id:string) {
-    super(scope, id);
-
-    this.vpc = new ec2.Vpc(this, "VPC");
-  }
+namespace Cdk
+{
+    internal class NetworkStack : Stack
+    {
+        public Vpc vpc { get; }
+        public NetworkStack(Construct parent, string id) : base(parent, id)
+        {
+            this.vpc = new Vpc(this, "VPC", new VpcProps
+            {
+                NatGateways = 1,
+                MaxAzs = 2
+            });
+        }
+    }
 }
 ```
 
-Seriously!, that is all you need to define a VPC!  Let's now run the `cdk synth` command to observe what this single line generates.  In a terminal window, navigate to `~/environment/workshop/cdk/` and run the following command:
+and update the `Program.cs` to reference the file
+
+```c#
+using Amazon.CDK;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace Cdk
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var app = new App(null);
+            var developerToolStack = new DeveloperToolsStack(app, "MythicalMysfits-DeveloperTools");
+            new WebApplicationStack(app, "MythicalMysfits-WebApplication");
+            var networkStack = new NetworkStack(app, "MythicalMysfits-Network");
+            app.Synth();
+        }
+    }
+}
+
+```
+
+### Network Stack Walkthrough - VPC
+
+Defining a VPC is super easy and one of the best ways to demonstrate the power and productivity gains achieved through using AWS CDK.  
+
+AWS CDK makes the implementation of AWS Components and Services a breeze by providing you with high level abstractions.  Let's demonstrate this now.
+
+A VPC can be defined in a simple one line statement.  Have a look at the code below:
+
+```c#
+this.vpc = new Vpc(this, "VPC");
+```
+
+Seriously!, that is all you need to define a VPC!  
+
+Let's now run the `cdk synth` command to observe what this single line generates.  In a terminal window, navigate to `~/environment/workshop/cdk/` and run the following command:
 
 __Note__: We are assigning the instance of our VPC to a local property so that it may be referenced by other stacks.
 
-**Action:** Execute the following command:
+**Action:** Execute the following commands:
+
+```sh
+dotnet build src
+```
 
 ```sh
 cdk synth MythicalMysfits-NetworkStack -o templates
@@ -290,69 +271,115 @@ In the generated file, you will find that one line of code generated a huge amou
 * Routing tables for each of the subnets
 * NAT and Internet Gateways for each AZ
 
-But lets now customise the VPC we are creating by adding some property overrides.  Change your VPC definiton to reflect the following:
+But we want to customise the VPC created by adding some property overrides.  We change the VPC definiton to reflect the following:
 
 **Action:** Change your VPC definition to reflect the following code:
 
-```typescript
-this.vpc = new ec2.Vpc(this, "VPC", {
-  natGateways: 1,
-  maxAzs: 2
+```c#
+this.vpc = new Vpc(this, "VPC", new VpcProps
+{
+    NatGateways = 1,
+    MaxAzs = 2
 });
 ```
 
 Here we are defining the maximum number of NAT Gateways we want to establish and the maximum number of AZs we want to deploy to.
 
-### Create Amazon Elastic Container Registry (ECR) Stack
+## Defining the Amazon Elastic Container Registry (ECR) Stack
 
 Later in this module we will be generating a docker image that contains our .NET Web API, but first we need somewhere to put it.  The place for our image is within an Amazon Elastic Container Registry which we will now create using AWS CDK.
 
-As before, let's create a new file within the `lib` folder, this time called `ecr-stack.ts`.  
+As before, let's create a new file within the `cdk/src/Cdk` folder, this time called `EcrStack.cs`.  
 
 **Action:** Execute the following command:
 
 ```sh
-touch ~/environment/workshop/cdk/lib/ecr-stack.ts
+touch ~/environment/workshop/cdk/lib/EcrStack.cs
 ```
 
-And again, as before, define the skeleton structure of a CDK Stack.
+We need to add a install the CDK NPM package for AWS ECR, doing so like below;
+
+**Action:** Execute the following command:
+
+```sh
+cd ~/environment/workshop/cdk/src/Cdk
+```
+
+```sh
+dotnet add package Amazon.CDK.AWS.ECR
+```
+
+Write/Copy the following code to define the ECR Stack.
 
 **Action:** Write/Copy the following code:
 
-```typescript
-import cdk = require('@aws-cdk/core');
+```c#
+using Amazon.CDK;
+using Amazon.CDK.AWS.ECR;
 
-export class ECRStack extends cdk.Stack {
-  constructor(scope: cdk.Construct, id: string) {
-    super(scope, id);
+namespace Cdk
+{
+    internal class EcrStack : Stack
+    {
+        public Repository ecrRepository { get; }
 
-    // The code that defines your stack goes here
-  }
+        public EcrStack(Construct parent, string id) : base(parent, id)
+        {
+            this.ecrRepository = new Repository(this, "Repository", new RepositoryProps
+            {
+                RepositoryName = "mythicalmysfits/service"
+            });
+        }
+    }
 }
 ```
 
-Then, add the ECRStack to our CDK application definition in `bin/cdk.ts`, as we have done before.  When done, your `bin/cdk.ts` should look like this;
+Then, add the ECRStack to our CDK application definition in `cdk/src/Cdk/program.cs`, as we have done before.  When done, your `cdk/src/Cdk/program.cs` should look like this;
 
 **Action:** Write/Copy the following code:
 
-```typescript
-#!/usr/bin/env node
+```c#
+using Amazon.CDK;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
-import cdk = require('@aws-cdk/core');
-import "source-map-support/register";
-import { DeveloperToolsStack } from "../lib/developer-tools-stack";
-import { WebApplicationStack } from "../lib/web-application-stack";
-import { NetworkStack } from "../lib/network-stack";
-import { EcrStack } from "../lib/ecr-stack";
+namespace Cdk
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var app = new App(null);
+            var developerToolStack = new DeveloperToolsStack(app, "MythicalMysfits-DeveloperTools");
+            new WebApplicationStack(app, "MythicalMysfits-WebApplication");
+            var networkStack = new NetworkStack(app, "MythicalMysfits-Network");
+            var ecrStack = new EcrStack(app, "MythicalMysfits-ECR");
+            app.Synth();
+        }
+    }
+}
 
-const app = new cdk.App();
-const developerToolStack = new DeveloperToolsStack(app, 'MythicalMysfits-DeveloperTools');
-new WebApplicationStack(app, "MythicalMysfits-WebApplication");
-const networkStack = new NetworkStack(app, "MythicalMysfits-Network");
-const ecrStack = new EcrStack(app, "MythicalMysfits-ECR");
 ```
 
-Now, let's define our ECR instance.  But first, we need to add a install the CDK NPM package for AWS ECR, doing so like below;
+#### ECR Stack Walkthrough
+
+Our definition of the Elastic Container Registry is relatively simple:
+
+**Action:** Write/Copy the following code:
+
+```c#
+this.ecrRepository = new Repository(this, "Repository", new RepositoryProps
+{
+    RepositoryName = "mythicalmysfits/service"
+});
+```
+
+We assign the ECR Repository to a local read-only property so that other stacks can reference it.
+
+#### Deployment the ECR Stack
+
+Now, deploy your ECR using the following command.
 
 **Action:** Execute the following command:
 
@@ -361,40 +388,7 @@ cd ~/environment/workshop/cdk
 ```
 
 ```sh
-npm install --save-dev @aws-cdk/aws-ecr
-```
-
-Then we add the definition of our ECR to the EcrStack as follows:
-
-**Action:** Write/Copy the following code:
-
-```typescript
-import ecr = require("@aws-cdk/aws-ecr");
-...
-export class EcrStack extends cdk.Stack {
-  public readonly ecrRepository: ecr.Repository;
-
-  constructor(scope: cdk.Construct, id: string) {
-    super(scope, id);
-    this.ecrRepository = new ecr.Repository(this, "Repository", {
-      repositoryName: "mythicalmysfits/service"
-    });
-  }
-}
-```
-
-__Note__: We are assigning the instance of our Repository to a readonly property so that it may be referenced by other stacks.
-
-Now, deploy your ECR using the following command
-
-**Action:** Execute the following command:
-
-```sh
-cd ~/environment/workshop/cdk
-```
-
-```sh
-npm run build
+dotnet build src/
 ```
 
 And now deploy the ECR stack
@@ -407,7 +401,7 @@ cdk deploy MythicalMysfits-ECR
 
 In your browser, go to the ECR Dashboard and verify you can see the ECR you just created in the list.
 
-### Pushing the Docker Image to Amazon ECR
+#### Pushing the Docker Image to Amazon ECR
 
 Earlier in this module we successful tested our WebAPI docker image locally, so now we are ready to push our container image to the Amazon Elastic Container Registry (Amazon ECR) we have just created.
 
@@ -429,8 +423,6 @@ docker push $(aws sts get-caller-identity --query Account --output text).dkr.ecr
 
 Run the following command to see your newly pushed docker image stored inside the ECR repository using either the AWS CLI command:
 
-_Note:_ If you use `Bash`, execute the following command:
-
 ```sh
 aws ecr describe-images --repository-name mythicalmysfits/service
 ```
@@ -446,38 +438,46 @@ Now, let's define our ECS instance.  But first, we need to add a install the CDK
 **Action:** Execute the following commands:
 
 ```sh
-cd ~/environment/workshop/cdk
+cd ~/environment/workshop/cdk/src/Cdk
 ```
 
 ```sh
-npm install --save-dev @aws-cdk/aws-ecs
+dotnet add package Amazon.CDK.AWS.ECS
 ```
 
 ```sh
-npm install --save-dev @aws-cdk/aws-ecs-patterns
+dotnet add package Amazon.CDK.AWS.ECS.Patterns
 ```
 
-As before, let's create a new file within the `lib` folder, this time called `ecs-stack.ts`.  
+As before, let's create a new file within the `Cdk` folder, this time called `EcsStack.cs`.  
 
 **Action:** Execute the following command:
 
 ```sh
-touch ~/environment/workshop/cdk/lib/ecs-stack.ts
+touch ~/environment/workshop/cdk/lib/EcsStack.cs
 ```
 
 Define the skeleton structure of a CDK Stack.
 
 **Action:** Write/Copy the following code:
 
-```typescript
-import cdk = require('@aws-cdk/core');
+```c#
+using System;
+using Amazon.CDK;
+using Amazon.CDK.AWS.EC2;
+using Amazon.CDK.AWS.ECR;
+using Amazon.CDK.AWS.ECS;
+using Amazon.CDK.AWS.ECS.Patterns;
+using Amazon.CDK.AWS.IAM;
 
-export class EcsStack extends cdk.Stack {
-  constructor(scope: cdk.Construct, id: string) {
-    super(scope, id);
-
-    // The code that defines your stack goes here
-  }
+namespace Cdk
+{
+    internal class EcsStack : Stack
+    {
+        public EcrStack(Construct parent, string id) : base(parent, id)
+        {
+        }
+    }
 }
 ```
 
@@ -487,21 +487,23 @@ Above your EcsStack definition, import the following modules:
 
 **Action:** Write/Copy the following code:
 
-```typescript
-import ec2 = require('@aws-cdk/aws-ec2');
-import ecr = require('@aws-cdk/aws-ecr');
+```c#
+using Amazon.CDK.AWS.EC2;
+using Amazon.CDK.AWS.ECR;
+using Amazon.CDK.AWS.ECS;
+using Amazon.CDK.AWS.ECS.Patterns;
+using Amazon.CDK.AWS.IAM;
 ```
 
 And define the following properties object.
 
 **Action:** Write/Copy the following code:
 
-```typescript
-interface EcsStackProps extends cdk.StackProps {
-  vpc: ec2.Vpc,
-  ecrRepository: ecr.Repository
-  ecsTaskRoleArn: string;
-  ecsExecutionRoleArn: string;
+```c#
+public class EcsStackProps
+{
+    public Repository ecrRepository { get; set; }
+    public Vpc Vpc { get; set; }
 }
 ```
 
@@ -509,61 +511,49 @@ Now change the constructor of your EcsStack to require your properties object.
 
 **Action:** Write/Copy the following code:
 
-```typescript
-  constructor(scope: cdk.Construct, id: string, props: EcsStackProps) {
+```c#
+    public EcsStack(Construct parent, string id, EcsStackProps props) : base(parent, id)
 ```
 
-Now, Import the remaining AWS CDK modules that we will require within the ECS stack.
+Define two properties at the top of your EcsStack that expose the ecsCluster and ecsService for other stacks to utilise later in the workshop.
 
 **Action:** Write/Copy the following code:
 
-```typescript
-import ecs = require("@aws-cdk/aws-ecs");
-import ecsPatterns = require("@aws-cdk/aws-ecs-patterns");
-import iam = require("@aws-cdk/aws-iam");
-```
-
-Be sure to define two properties at the top of your EcsStack that expose the ecsCluster and ecsService for other stacks to utilise later in the workshop.
-
-**Action:** Write/Copy the following code:
-
-```typescript
-export class EcsStack extends cdk.Stack {
-  public readonly ecsCluster: ecs.Cluster;
-  public readonly ecsService: ecsPatterns.NetworkLoadBalancedFargateService;
-
-  constructor(scope: cdk.Construct, id: string, props: EcsStackProps) {
-    super(scope, id);
+```c#
+    public Cluster ecsCluster { get; }
+    public NetworkLoadBalancedFargateService ecsService { get; }
 ```
 
 Now we define our ECS Cluster object.
 
 **Action:** Write/Copy the following code:
 
-```typescript
-this.ecsCluster = new ecs.Cluster(this, "Cluster", {
-  clusterName: "MythicalMysfits-Cluster",
-  vpc: props.vpc
+```c#
+this.ecsCluster = new Cluster(this, "Cluster", new ClusterProps {
+    Vpc = props.Vpc,
 });
-this.ecsCluster.connections.allowFromAnyIpv4(ec2.Port.tcp(8080));
+this.ecsCluster.Connections.AllowFromAnyIpv4(Port.Tcp(8080));
 ```
 
 Notice how we reference the VPC (`props.vpc`) defined in the `EcsStackProps`.  [AWS CDK](https://aws.amazon.com/cdk/) will automatically create a reference here between the CloudFormation objects.  Also notice that we assign the instance of the ecs.Cluster created to a local property so that it can be referenced by this and other stacks.
 
 **Action:** Write/Copy the following code:
 
-```typescript
-this.ecsService = new ecsPatterns.NetworkLoadBalancedFargateService(this, "Service", {
-  cluster: this.ecsCluster,
-  desiredCount: 1,
-  publicLoadBalancer: true,
-  taskImageOptions: {
-    enableLogging: true,
-    containerPort: 8080,
-    image: ecs.ContainerImage.fromEcrRepository(props.ecrRepository),
-  }
-});
-this.ecsService.service.connections.allowFrom(ec2.Peer.ipv4(props.vpc.vpcCidrBlock),ec2.Port.tcp(8080));
+```c#
+this.ecsService = new NetworkLoadBalancedFargateService(this, "Service", new NetworkLoadBalancedFargateServiceProps()
+    {
+        Cluster = this.ecsCluster,
+        DesiredCount = 1,
+        PublicLoadBalancer = true,
+        TaskImageOptions = new NetworkLoadBalancedTaskImageOptions
+        {
+            EnableLogging = true,
+            ContainerPort = 8080,
+            Image = ContainerImage.FromEcrRepository(props.ecrRepository),
+        }
+    }
+);
+this.ecsService.Service.Connections.AllowFrom(Peer.Ipv4(props.Vpc.VpcCidrBlock), Port.Tcp(8080));
 ```
 
 Notice here the definition of container ports and the customisation of the EC2 SecurityGroups rules created by AWS CDK to limit permitted requests to the cidr block of the VPC we created.
@@ -572,92 +562,102 @@ Now we will add some additional IAM Policy Statements to the Execution and Task 
 
 **Action:** Write/Copy the following code:
 
-```typescript
-const taskDefinitionPolicy = new iam.PolicyStatement();
-taskDefinitionPolicy.addActions(
-  // Rules which allow ECS to attach network interfaces to instances
-  // on your behalf in order for awsvpc networking mode to work right
-  "ec2:AttachNetworkInterface",
-  "ec2:CreateNetworkInterface",
-  "ec2:CreateNetworkInterfacePermission",
-  "ec2:DeleteNetworkInterface",
-  "ec2:DeleteNetworkInterfacePermission",
-  "ec2:Describe*",
-  "ec2:DetachNetworkInterface",
+```c#
+var taskDefinitionPolicy = new PolicyStatement();
+taskDefinitionPolicy.AddActions(
+    // Rules which allow ECS to attach network interfaces to instances
+    // on your behalf in order for awsvpc networking mode to work right
+    "ec2:AttachNetworkInterface",
+    "ec2:CreateNetworkInterface",
+    "ec2:CreateNetworkInterfacePermission",
+    "ec2:DeleteNetworkInterface",
+    "ec2:DeleteNetworkInterfacePermission",
+    "ec2:Describe*",
+    "ec2:DetachNetworkInterface",
 
-  // Rules which allow ECS to update load balancers on your behalf
-  //  with the information sabout how to send traffic to your containers
-  "elasticloadbalancing:DeregisterInstancesFromLoadBalancer",
-  "elasticloadbalancing:DeregisterTargets",
-  "elasticloadbalancing:Describe*",
-  "elasticloadbalancing:RegisterInstancesWithLoadBalancer",
-  "elasticloadbalancing:RegisterTargets",
+    // Rules which allow ECS to update load balancers on your behalf
+    //  with the information sabout how to send traffic to your containers
+    "elasticloadbalancing:DeregisterInstancesFromLoadBalancer",
+    "elasticloadbalancing:DeregisterTargets",
+    "elasticloadbalancing:Describe*",
+    "elasticloadbalancing:RegisterInstancesWithLoadBalancer",
+    "elasticloadbalancing:RegisterTargets",
 
-  //  Rules which allow ECS to run tasks that have IAM roles assigned to them.
-  "iam:PassRole",
+    //  Rules which allow ECS to run tasks that have IAM roles assigned to them.
+    "iam:PassRole",
 
-  //  Rules that let ECS create and push logs to CloudWatch.
-  "logs:DescribeLogStreams",
-  "logs:CreateLogGroup");
-taskDefinitionPolicy.addAllResources();
+    //  Rules that let ECS create and push logs to CloudWatch.
+    "logs:DescribeLogStreams",
+    "logs:CreateLogGroup");
+taskDefinitionPolicy.AddAllResources();
 
-this.ecsService.service.taskDefinition.addToExecutionRolePolicy(
-  taskDefinitionPolicy
+this.ecsService.Service.TaskDefinition.AddToExecutionRolePolicy(
+    taskDefinitionPolicy
 );
 
-const taskRolePolicy =  new iam.PolicyStatement();
-taskRolePolicy.addActions(
-  // Allow the ECS Tasks to download images from ECR
-  "ecr:GetAuthorizationToken",
-  "ecr:BatchCheckLayerAvailability",
-  "ecr:GetDownloadUrlForLayer",
-  "ecr:BatchGetImage",
-  // Allow the ECS tasks to upload logs to CloudWatch
-  "logs:CreateLogStream",
-  "logs:CreateLogGroup",
-  "logs:PutLogEvents"
+var taskRolePolicy = new PolicyStatement();
+taskRolePolicy.AddActions(
+    // Allow the ECS Tasks to download images from ECR
+    "ecr:GetAuthorizationToken",
+    "ecr:BatchCheckLayerAvailability",
+    "ecr:GetDownloadUrlForLayer",
+    "ecr:BatchGetImage",
+    // Allow the ECS tasks to upload logs to CloudWatch
+    "logs:CreateLogStream",
+    "logs:CreateLogGroup",
+    "logs:PutLogEvents"
 );
-taskRolePolicy.addAllResources();
+taskRolePolicy.AddAllResources();
 
-this.ecsService.service.taskDefinition.addToTaskRolePolicy(
-  taskRolePolicy
+this.ecsService.Service.TaskDefinition.AddToTaskRolePolicy(
+    taskRolePolicy
 );
 ```
 
-Then, add the EcsStack to our CDK application definition in `bin/cdk.ts`, as we have done before.  When done, your `bin/cdk.ts` should look like this;
+Then, add the EcsStack to our CDK application definition in `cdk/src/Cdk/Program.cs`, as we have done before.  When done, your `cdk/src/Cdk/Program.cs` should look like this;
 
 **Action:** Write/Copy the following code:
 
-```typescript
-#!/usr/bin/env node
+```c#
+using Amazon.CDK;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
-import cdk = require('@aws-cdk/core');
-import "source-map-support/register";
-import { DeveloperToolsStack } from "../lib/developer-tools-stack";
-import { WebApplicationStack } from "../lib/web-application-stack";
-import { EcrStack } from "../lib/ecr-stack";
-import { EcsStack } from "../lib/ecs-stack";
-import { NetworkStack } from "../lib/network-stack";
-
-const app = new cdk.App();
-const developerToolStack = new DeveloperToolsStack(app, 'MythicalMysfits-DeveloperTools');
-new WebApplicationStack(app, "MythicalMysfits-WebApplication");
-const networkStack = new NetworkStack(app, "MythicalMysfits-Network");
-const ecrStack = new EcrStack(app, "MythicalMysfits-ECR");
-const ecsStack = new EcsStack(app, "MythicalMysfits-ECS", {
-  vpc: networkStack.vpc,
-  ecrRepository: ecrStack.ecrRepository,
-  ecsTaskRoleArn: ecsTaskRoleArn,
-  ecsExecutionRoleArn: ecsExecutionRoleArn
-});
+namespace Cdk
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var app = new App(null);
+            var developerToolStack = new DeveloperToolsStack(app, "MythicalMysfits-DeveloperTools");
+            new WebApplicationStack(app, "MythicalMysfits-WebApplication");
+            var networkStack = new NetworkStack(app, "MythicalMysfits-Network");
+            var ecrStack = new EcrStack(app, "MythicalMysfits-ECR");
+            var ecsStack = new EcsStack(app, "MythicalMysfits-ECS", new EcsStackProps
+            {
+                Vpc = networkStack.vpc,
+                ecrRepository = ecrStack.ecrRepository
+            });
+            app.Synth();
+        }
+    }
+}
 ```
-
-Make sure your CDK application compiles without error (by either running `npm run build` or `npm run watch`) and deploy your application so far to your environment.
 
 **Action:** Execute the following command:
 
 ```sh
 cd ~/environment/workshop/cdk
+```
+
+```sh
+cd ~/environment/workshop/cdk/src/
+```
+
+```sh
+dotnet build
 ```
 
 #### Creating a Service Linked Role for ECS
@@ -774,95 +774,201 @@ Let's start off by switching once again to our Workshop's CDK folder, and openin
 **Action:** Execute the following command:
 
 ```sh
-cd ~/environment/workshop/cdk
+cd ~/environment/workshop/cdk/src/Cdk/
 ```
 
-```sh
-code .
-```
-
-Create a new file in the `lib` folder called `cicd-stack.ts`.
+Create a new file in the `cdk/src/Cdk` folder called `CiCdStack.cs`.
 
 ```sh
-touch ~/environment/workshop/cdk/lib/cicd-stack.ts
+touch ~/environment/workshop/cdk/lib/CiCdStack.cs
 ```
 
 __Note__ As before, you may find it helpful to run the command `npm run watch` from within the CDK folder to provide compile time error reporting whilst you develop your AWS CDK constructs.  We recommend running this from the terminal window within VS Code.
 
 First, we need to add a install the CDK NPM package for AWS EC2, doing so like below;
 
-**Action:** Execute the following command:
+**Action:** Execute the following commands:
 
 ```sh
-cd ~/environment/workshop/cdk
+cd ~/environment/workshop/cdk/src/Cdk
 ```
 
 ```sh
-npm install --save-dev @aws-cdk/aws-codebuild @aws-cdk/aws-codepipeline @aws-cdk/aws-codepipeline-actions
+dotnet add package Amazon.CDK.AWS.CodeBuild
 ```
 
-Within the file you just created, define the skeleton CDK Stack structure as we have done before, this time naming the class  `CiCdStack`:
+```sh
+dotnet add package Amazon.CDK.AWS.CodePipeline
+```
+
+```sh
+dotnet add package Amazon.CDK.AWS.CodePipeline
+```
+
+Within the file you just created, write/copy the following code to define the class  `CiCdStack`.  We will step through the main aspects in a moment:
 
 **Action:** Write/Copy the following code:
 
-```typescript
-import cdk = require('@aws-cdk/core');
+```c#
+using System.Collections.Generic;
+using Amazon.CDK;
+using Amazon.CDK.AWS.ECR;
+using Amazon.CDK.AWS.ECS;
+using Amazon.CDK.AWS.CodeBuild;
+using Amazon.CDK.AWS.CodeCommit;
+using Amazon.CDK.AWS.CodePipeline;
+using Amazon.CDK.AWS.CodePipeline.Actions;
+using Amazon.CDK.AWS.IAM;
 
-export class CiCdStack extends cdk.Stack {
-  constructor(scope: cdk.Construct, id: string) {
-    super(scope, id);
+namespace Cdk
+{
+    internal class CiCdStack : Stack
+    {
+        public CiCdStack(Construct parent, string id, CiCdStackProps props) : base(parent, id, props)
+        {
+            var apiRepository = Amazon.CDK.AWS.CodeCommit.Repository.FromRepositoryArn(this, "Repository", props.apiRepositoryArn);
+            var environmentVariables = new Dictionary<string, IBuildEnvironmentVariable>();
+            environmentVariables.Add("AWS_ACCOUNT_ID", new BuildEnvironmentVariable()
+            {
+                Type = BuildEnvironmentVariableType.PLAINTEXT,
+                Value = Aws.ACCOUNT_ID
+            });
+            environmentVariables.Add("AWS_DEFAULT_REGION", new BuildEnvironmentVariable()
+            {
+                Type = BuildEnvironmentVariableType.PLAINTEXT,
+                Value = Aws.REGION
+            });
+            var codebuildProject = new PipelineProject(this, "BuildProject", new PipelineProjectProps
+            {
+                Environment = new BuildEnvironment
+                {
+                    ComputeType = ComputeType.SMALL,
+                    BuildImage = LinuxBuildImage.UBUNTU_14_04_PYTHON_3_5_2,
+                    Privileged = true,
+                    EnvironmentVariables = environmentVariables
+                }
+            });
+            var codeBuildPolicy = new PolicyStatement();
+            codeBuildPolicy.AddResources(apiRepository.RepositoryArn);
+            codeBuildPolicy.AddActions(
+                "codecommit:ListBranches",
+                "codecommit:ListRepositories",
+                "codecommit:BatchGetRepositories",
+                "codecommit:GitPull"
+            );
+            codebuildProject.AddToRolePolicy(
+                codeBuildPolicy
+            );
+            props.ecrRepository.GrantPullPush(codebuildProject.GrantPrincipal);
 
-    // The code that defines your stack goes here
-  }
+            var sourceOutput = new Artifact_();
+            var sourceAction = new Amazon.CDK.AWS.CodePipeline.Actions.CodeCommitSourceAction(
+                new Amazon.CDK.AWS.CodePipeline.Actions.CodeCommitSourceActionProps
+                {
+                    ActionName = "CodeCommit-Source",
+                    Branch = "master",
+                    Trigger = CodeCommitTrigger.POLL,
+                    Repository = apiRepository,
+                    Output = sourceOutput
+                });
+
+            var buildOutput = new Artifact_();
+            var buildAction = new CodeBuildAction(new CodeBuildActionProps
+            {
+                ActionName = "Build",
+                Input = sourceOutput,
+                Outputs = new Artifact_[]
+                {
+                    buildOutput
+                },
+                Project = codebuildProject
+            });
+
+            var deployAction = new EcsDeployAction(new EcsDeployActionProps
+            {
+                ActionName = "DeployAction",
+                Input = buildOutput,
+                Service = props.ecsService,
+            });
+
+            var pipeline = new Pipeline(this, "Pipeline");
+            pipeline.AddStage(new StageOptions
+            {
+                StageName = "Source",
+                Actions = new Action[] {sourceAction}
+            });
+            pipeline.AddStage(new StageOptions
+            {
+                StageName = "Build",
+                Actions = new Action[] {buildAction}
+            });
+            pipeline.AddStage(new StageOptions
+            {
+                StageName = "Deploy",
+                Actions = new Action[] {deployAction}
+            });
+        }
+    }
+
+    public class CiCdStackProps : StackProps
+    {
+        public Amazon.CDK.AWS.ECR.Repository ecrRepository { get; internal set; }
+        public FargateService ecsService { get; internal set; }
+        public string apiRepositoryArn { get; internal set; }
+    }
 }
 ```
 
-Add the required library import statements
+With the CiCdStack defined, let's step through what we have written.
 
-```typescript
-import codecommit = require('@aws-cdk/aws-codecommit');
-import codebuild = require('@aws-cdk/aws-codebuild');
-import codepipeline = require('@aws-cdk/aws-codepipeline');
-import codepipelineactions = require('@aws-cdk/aws-codepipeline-actions');
-import ecr = require('@aws-cdk/aws-ecr');
-import ecs = require('@aws-cdk/aws-ecs');
-import iam = require('@aws-cdk/aws-iam');
+### Imports
+
+We imported the assemblies that we require; 
+
+```c#
+using Amazon.CDK.AWS.ECR;
+using Amazon.CDK.AWS.ECS;
+using Amazon.CDK.AWS.CodeBuild;
+using Amazon.CDK.AWS.CodeCommit;
+using Amazon.CDK.AWS.CodePipeline;
+using Amazon.CDK.AWS.CodePipeline.Actions;
+using Amazon.CDK.AWS.IAM;
 ```
 
-Define the interface for the properties our stack will require
+### Interface
 
-```typescript
-interface CiCdStackProps extends cdk.StackProps {
-  ecrRepository: ecr.Repository;
-  ecsService: ecs.FargateService;
-  apiRepositoryArn: string;
-  codePipelineActionRoleArn: string;
-  codebuildProjectRoleArn: string;
-  codePipelineRoleArn: string;
+We defined the interface for the properties our stack will require
+
+```c#
+public class CiCdStackProps : StackProps
+{
+    public Amazon.CDK.AWS.ECR.Repository ecrRepository { get; internal set; }
+    public FargateService ecsService { get; internal set; }
+    public string apiRepositoryArn { get; internal set; }
 }
 ```
+
+### Constructor
 
 Change the constructor of your EcsStack to require your properties object.
 
-**Action:** Write/Copy the following code:
-
-```typescript
-  constructor(scope: cdk.Construct, id: string, props: CiCdStackProps) {
+```c#
+public CiCdStack(Construct parent, string id, CiCdStackProps props) : base(parent, id, props)
 ```
 
-Now, we can define our CiCd pipeline using AWS CDK.  Once again, AWS CDK makes the implementation of AWS Components and Services a breeze by providing you with high level abstractions.  Let's demonstrate this now.
+### Defining the CICD pipeline
 
-Within the `CiCdStack` file, Write the following code to import the CodeCommit repository we use for our API code
+Now, we define our CiCd pipeline using AWS CDK.  Once again, AWS CDK makes the implementation of AWS Components and Services a breeze by providing you with high level abstractions.  Let's demonstrate this now.
 
-**Action:** Write/Copy the following code:
+Within the `CiCdStack` file, we have the following code to import the CodeCommit repository we use for our API code
 
-```typescript
-const apiRepository = codecommit.Repository.fromRepositoryArn(this,'Repository', props.apiRepositoryArn);
+```c#
+var apiRepository = Amazon.CDK.AWS.CodeCommit.Repository.FromRepositoryArn(this, "Repository", props.apiRepositoryArn);
 ```
 
-**Action:** Write/Copy the following code to define our CodeBuild project to compile our .NET Core WebAPI upon change
+The following code defines our CodeBuild project to compile our .NET Core WebAPI upon change
 
-```typescript
+```c#
 const codebuildProject = new codebuild.PipelineProject(this, "BuildProject", {
   projectName: "MythicalMysfitsServiceCodeBuildProject",
   environment: {
@@ -883,11 +989,9 @@ const codebuildProject = new codebuild.PipelineProject(this, "BuildProject", {
 });
 ```
 
-Provide the codebuild project with permissions to query the codecommit repository.
+We then provide the codebuild project with permissions to query the codecommit repository.
 
-**Action:** Write/Copy the following code:
-
-```typescript
+```c#
 const codeBuildPolicy = new iam.PolicyStatement();
 codeBuildPolicy.addResources(apiRepository.repositoryArn)
 codeBuildPolicy.addActions(
@@ -901,19 +1005,15 @@ codebuildProject.addToRolePolicy(
 );
 ```
 
-Provide the codebuild project with permissions to pull and push images to the ECR repository
+And provide the codebuild project with permissions to pull and push images to the ECR repository
 
-**Action:** Write/Copy the following code:
-
-```typescript
+```c#
 props.ecrRepository.grantPullPush(codebuildProject.grantPrincipal);
 ```
 
-Define the Pipeline Source action which tells CodePipeline where to obtain its source from.
+We define the Pipeline Source action which tells CodePipeline where to obtain its source from.
 
-**Action:** Write/Copy the following code:
-
-```typescript
+```c#
 const sourceOutput = new codepipeline.Artifact();
 const sourceAction = new actions.CodeCommitSourceAction({
   actionName: "CodeCommit-Source",
@@ -924,11 +1024,9 @@ const sourceAction = new actions.CodeCommitSourceAction({
 });
 ```
 
-Define the Pipeline Build action to inform CodePipeline and CodeBuild how to build the WebAPI code and docker image.
+We define the Pipeline Build action to inform CodePipeline and CodeBuild how to build the WebAPI code and docker image.
 
-**Action:** Write/Copy the following code:
-
-```typescript
+```c#
 const buildOutput = new codepipeline.Artifact();
 const buildAction = new actions.CodeBuildAction({
   actionName: "Build",
@@ -940,11 +1038,9 @@ const buildAction = new actions.CodeBuildAction({
 });
 ```
 
-Define the ECS deployment action to instruct the CodePipeline how to deploy the output of the BuildAction to the CodePipeline instance.
+We define the ECS deployment action to instruct the CodePipeline how to deploy the output of the BuildAction to the CodePipeline instance.
 
-**Action:** Write/Copy the following code:
-
-```typescript
+```c#
 const deployAction = new actions.EcsDeployAction({
   actionName: "DeployAction",
   service: props.ecsService,
@@ -952,11 +1048,9 @@ const deployAction = new actions.EcsDeployAction({
 });
 ```
 
-Finally define the CodePipeline and stich all the stages/actions together.
+Finally we define the CodePipeline and stich all the stages/actions together.
 
-**Action:** Write/Copy the following code:
-
-```typescript
+```c#
 const pipeline = new codepipeline.Pipeline(this, "Pipeline", {
   pipelineName: "MythicalMysfitsPipeline"
 });
@@ -974,11 +1068,11 @@ pipeline.addStage({
 });
 ```
 
-Then, add the CiCdStack to our CDK application definition in `bin/cdk.ts`, when done, your `bin/cdk.ts` should look like this;
+Then, add the CiCdStack to our CDK application definition in `cdk/src/Cdk/Program.cs`, when done, your `cdk/src/Cdk/Program.cs` should look like this;
 
 **Action:** Write/Copy the following code:
 
-```typescript
+```c#
 #!/usr/bin/env node
 
 import cdk = require('@aws-cdk/core');
@@ -1028,8 +1122,6 @@ cdk deploy MythicalMysfits-CICD
 ```
 
 ### Test the CI/CD Pipeline
-
-#### Pushing a Code Change
 
 Now the completed service code that we used to create our Fargate service in Module 2 is stored in the local repository that we just cloned from AWS CodeCommit.  Let's make a change to the .NET service before committing our changes to demonstrate that the CI/CD pipeline we've created is working. In Visual Studio Code, open the file stored at `~/environment/workshop/api/service/mysfits-response.json` and change the age of one of the mysfits to another value and save the file.
 
