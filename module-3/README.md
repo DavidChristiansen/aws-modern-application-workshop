@@ -38,31 +38,118 @@ cd ~/environment/workshop/cdk
 code .
 ```
 
-Create a new file in the `lib` folder called `dynamodb-stack.ts`.
+Create a new file in the `cdk/src/Cdk` folder called `DynamoDbStack.cs`.
 
 ```sh
-touch ~/environment/workshop/cdk/lib/dynamodb-stack.ts
+touch ~/environment/workshop/cdk/src/Cdk/DynamoDbStack.cs
 ```
 
-__Note__ As before, you may find it helpful to run the command `npm run watch` from within the CDK folder to provide compile time error reporting whilst you develop your AWS CDK constructs.  We recommend running this from the terminal window within VS Code.
-
-Within the file you just created, define the skeleton CDK Stack structure as we have done before, this time naming the class  `DynamoDbStack`:
+Within the file you just created, define the CDK Stack structure:
 
 **Action:** Write/Copy the following code:
 
-```typescript
-import cdk = require('@aws-cdk/core');
+```c#
+using Amazon.CDK;
+using Amazon.CDK.AWS.DynamoDB;
+using Amazon.CDK.AWS.EC2;
+using Amazon.CDK.AWS.ECR;
+using Amazon.CDK.AWS.ECS;
+using Amazon.CDK.AWS.IAM;
 
-export class DynamoDbStack extends cdk.Stack {
-  constructor(scope: cdk.Construct, id:string) {
-    super(scope, id);
+namespace Cdk
+{
+    internal class DynamoDbStack : Stack
+    {
+        public Repository ecrRepository { get; }
+        public Table table { get; }
 
-    // The code that defines your stack goes here
-  }
+        public DynamoDbStack(Construct parent, string id, DynamoDbStackProps props) : base(parent, id, props)
+        {
+            var dynamoDbEndpoint = props.Vpc.AddGatewayEndpoint("DynamoDbEndpoint", new GatewayVpcEndpointOptions
+            {
+                Service = GatewayVpcEndpointAwsService.DYNAMODB
+            });
+
+            var dynamoDbPolicy = new PolicyStatement();
+            dynamoDbPolicy.AddAnyPrincipal();
+            dynamoDbPolicy.AddActions("*");
+            dynamoDbPolicy.AddAllResources();
+            dynamoDbEndpoint.AddToPolicy(
+                dynamoDbPolicy
+            );
+
+            this.table = new Table(this, "Table", new TableProps
+            {
+                TableName = "MysfitsTable",
+                PartitionKey = new Attribute
+                {
+                    Name = "MysfitId",
+                    Type = AttributeType.STRING
+                }
+            });
+            this.table.AddGlobalSecondaryIndex(new GlobalSecondaryIndexProps
+            {
+                IndexName = "LawChaosIndex",
+                PartitionKey = new Attribute
+                {
+                    Name = "LawChaos",
+                    Type = AttributeType.STRING
+                },
+                SortKey = new Attribute
+                {
+                    Name = "MysfitId",
+                    Type = AttributeType.STRING
+                },
+                ReadCapacity = 5,
+                WriteCapacity = 5,
+                ProjectionType = ProjectionType.ALL
+            });
+            this.table.AddGlobalSecondaryIndex(new GlobalSecondaryIndexProps
+            {
+                IndexName = "GoodEvilIndex",
+                PartitionKey = new Attribute
+                {
+                    Name = "GoodEvil",
+                    Type = AttributeType.STRING
+                },
+                SortKey = new Attribute
+                {
+                    Name = "MysfitId",
+                    Type = AttributeType.STRING
+                },
+                ReadCapacity = 5,
+                WriteCapacity = 5,
+                ProjectionType = ProjectionType.ALL
+            });
+
+            var fargatePolicy = new PolicyStatement();
+            fargatePolicy.AddActions(
+                //  Allows the ECS tasks to interact with only the MysfitsTable in DynamoDB
+                "dynamodb:Scan",
+                "dynamodb:Query",
+                "dynamodb:UpdateItem",
+                "dynamodb:GetItem",
+                "dynamodb:DescribeTable"
+            );
+            fargatePolicy.AddResources(
+                "arn:aws:dynamodb:*:*:table/MysfitsTable*"
+            );
+            props.fargateService.TaskDefinition.AddToTaskRolePolicy(
+                fargatePolicy
+            );
+        }
+    }
+
+    public class DynamoDbStackProps : StackProps
+    {
+        internal FargateService fargateService { get; set; }
+
+        internal Vpc Vpc { get; set; }
+    }
 }
 ```
 
-Then, add the NetworkStack to our CDK application definition in `bin/cdk.ts`, when done, your `bin/cdk.ts` should look like this;
+Then, add the DynamoDB to our CDK application definition in `bin/cdk.ts`, when done, your `bin/cdk.ts` should look like this;
 
 **Action:** Write/Copy the following code:
 
@@ -100,6 +187,7 @@ new DynamoDbStack(app, 'MythicalMysfits-DynamoDB', {
   fargateService: ecsStack.ecsService.service,
   vpc: networkStack.vpc
 });
+app.synth();
 ```
 
 Now, we can define the DynamoDB table using AWS CDK.  Once again, AWS CDK makes the implementation of AWS Components and Services a breeze by providing you with high level abstractions.  Let's demonstrate this now.
