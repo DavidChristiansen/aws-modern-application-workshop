@@ -62,7 +62,7 @@ export class DynamoDbStack extends cdk.Stack {
 }
 ```
 
-Then, add the NetworkStack to our CDK application definition in `bin/cdk.ts`, when done, your `bin/cdk.ts` should look like this;
+Then, add the DynamoDB stack to our CDK application definition in `bin/cdk.ts`, when done, your `bin/cdk.ts` should look like this;
 
 **Action:** Write/Copy the following code:
 
